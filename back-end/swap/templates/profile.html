@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+
+    <style>
+        .logout{
+            width: 200px;
+            height: 50px;
+            color: white;
+            margin-left : 1100px;
+            background-color: rgb(236, 79, 79);
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    
+    <form action="logout/" method="POST"> {% csrf_token %}
+        {% if user.is_authenticated %}
+        <a href="/logout/" onclick="document.getElementById('loggingout').submit()">
+        <button type="button" id="loggingout" class="logout"> Logout </button>
+        </a>
+        {%  endif %}
+    </form>
+
+    <h1 class="welcome"> Hello {{user.username}}, here is your profile</h1>
+    <br>
+    <h2 class="email-report"> Your gmail is {{user.email}}</h2>
+</body>
+</html>

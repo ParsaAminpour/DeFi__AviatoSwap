@@ -63,109 +63,25 @@ class login_form(forms.Form):
         }
     ))
 
-    # def clean_password(self):
-    #     password = self.cleaned_data['password']
-    #     pattern = r'\w*'
-    #     if not bool(re.match(pattern, password)):
-    #         raise forms.ValidationError('The password is invalid')
-    #     return password 
 
+class UploadProfilePic(forms.Form):
+    picture = forms.ImageField(widget=forms.FileInput(
+        attrs={
+            'id' : 'upload', 'name' : 'upload', 'type' : 'file'
+        }
+    ))
 
-# class login_form(forms.ModelForm):
-#     class Meta:
-#         model = User
-#         fields = ('username', 'password', )
+    def clean_picture(self):
+        pic = self.cleaned_data.get('picture',0)
+        try:
+            val = pic.split('.')[-1]
+        except AttributeError:
+            raise forms.ValidationError('Firest off, please insert your picture')
 
-#         labels = {
-#             'username' : _('Username'),
-#             'password' : _('Password')
-#         }
+        if val not in ['jpeg','jpg','jfif','pic']:
+            raise forms.ValidationError(f'{val} is NOT good forms')
 
-#         help_texts = {
-#             'username' : ''
-#         }
-
-
-#         widgets={
-#             'username' : forms.TextInput(attrs={
-#                 'class' : 'username_login',
-#                 'placeholder' : 'Username'
-#             }),
-#             'password' : forms.PasswordInput(attrs={
-#                 'class' : 'password',
-#                 'placeholder':'Password'
-#             })
-#         }
-    
-#     def clean_password(self):
-#         password = self.cleaned_data['password']
-#         pattern = r'\w*'
-#         if not bool(re.match(pattern, password)):
-#             raise forms.ValidationError('invalid password')
-#         return password
+        return self.cleaned_data.get('picture')
 
 
 
-# class SignUp(forms.ModelForm):
-#     class Meta:
-#         model = User
-#         fields = ('username', 'first_name', 'last_name', 'email')
-#         labels = {
-#             'username' : _('username'),
-#             'first_name' : _('first name'),
-#             'last_name' : _('last name'),
-#             'email' : _('gmail')
-#         }
-#         error_messages = {
-#             'username' : {
-#                 'max_length' : _('This username is invalid')
-#             }
-#         }
-#         help_texts = {
-#             'username' : ''
-#         }
-#         widgets = {
-#             'username': forms.TextInput(attrs={
-#             'class': 'username',
-#             'style': 'background-color: white',
-#             'placeholder': 'Your username',
-#             }),
-
-#             'first_name' : forms.TextInput(attrs={
-#                 'class' : 'first-name',
-#                 'placeholder' : 'Your firstname'
-#             }),
-
-#             'last_name' : forms.TextInput(attrs={
-#                 'class' : 'last-name',
-#                 'placeholder': 'Your lastname'
-#             }),
-
-#             'email' : forms.EmailInput(attrs={
-#                 'class' : 'email',
-#                 'placeholder' : 'Your Gmail'
-#             })
-#         }
-
-
-#     def send_email(self):
-#         msg = main()
-#         msg['from'] = 'parsa.aminpour.dev@gmail.com'
-#         msg['to'] = self.cleaned_data['email']
-#         msg['subject'] = 'login code'
-#         body = text(f'Your validation code is {randint(110000,999999)}')
-#         msg.attach(body)
-
-#         with smtplib.SMTP(host='smtp.google.com', port=587) as smtp:
-#             smtp.ehlo()
-#             smtp.starttls()
-#             password = 'parsaaminpourdev'
-#             smtp.login('parsa.aminpour.dev@gmail.com', password=password)
-#             smtp.send_message(msg)
-
-#     def clean_email(self):
-#         email = self.cleaned_data['email']
-#         pattern = '^[a-z]+(?:(?:\.[a-z]+)+\d*|(?:_[a-z]+)+(?:\.\d+)?)?@(?!.*\.\.)[^\W_][a-z\d.]+[a-z\d]{2}$'
-#         if not bool(re.match(pattern, email)):
-#             raise forms.ValidationError('This email is invalid')
-#         return email

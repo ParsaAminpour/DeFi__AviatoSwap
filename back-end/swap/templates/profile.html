@@ -1,34 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
+    {% load static %}
 <head>
+    <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <link rel="icon" href="assets/imgs/inaya_pfp.gif">
+    
+    <!-- Title -->
+    <title>🌴 ・ Inaya</title>
 
-    <style>
-        .logout{
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous">
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+*, *::before, *::after {
+    padding: 0;
+    margin: 0;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #16161a;
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Nav Bar */
+
+header nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    animation: fadeInDown .8s;
+}
+
+header nav .header_links ul {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+header nav .header_links ul li, section.main ul li {
+    list-style-type: none;
+}
+
+header nav .header_links ul li a {
+    outline: none;
+    text-decoration: none;
+    color: #a6a8b8;
+    padding: 5px 12px;
+    transition: 0.3s all;
+    font-size: 15px;
+}
+
+header nav .header_links ul li a:hover {
+    color: white;
+}
+
+header nav .header_logo img {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    object-fit: cover;
+    border: 5px solid #3b3d4e93;
+    cursor: pointer;
+}
+
+/* Responsive nav bar */
+
+@media only screen and (max-width: 630px) {
+    header nav {
+        display: flex;
+        flex-direction: column;
+    }
+    header nav .header_logo {
+        margin-bottom: 20px;
+    }
+}
+
+@media only screen and (max-width: 320px) {
+    header nav .header_links ul {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+/* Main */
+
+section.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 70vh;
+    animation: fadeInUp .8s;
+}
+
+section.main img {
+    width: 150px;
+    height: 150px;
+    border-radius: 100%;
+    object-fit: cover;
+    border: 10px solid #21222b93;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+section.main span {
+    color: #fffffe;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+section.main p {
+    position: relative;
+    top: 50%;
+    border-right: 2px solid rgba(255, 255, 255, .75);
+    white-space: nowrap;
+    overflow: hidden;
+    color: #94a1b2;
+    font-size: 13px;
+    animation: typewriter 4s steps(44) 1s 1 normal both, blinkTextCursor 530ms steps(44) infinite normal;
+}
+
+section.main ul {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+section.main ul li a {
+    color: #a6a8b8;
+    display: flex;
+    text-decoration: none;
+    margin: 20px 5px;
+    font-size: 25px;
+    padding: 5px;
+    transition: 0.2s all;
+}
+
+section.main ul li a:hover {
+    transition: 0.2s all;
+    color: #fff;
+}
+
+@keyframes typewriter {
+    from {
+        width: 0;
+    }
+    to {
+        width: 20.5em;
+    }
+}
+
+@keyframes blinkTextCursor {
+    from {
+        border-right-color: rgba(255, 255, 255, .75);
+    }
+    to {
+        border-right-color: transparent;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translate3d(0, 150px, 0)
+    }
+    to {
+        transform: translate3d(0, 0, 0);
+        opacity: 1
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        transform: translate3d(0, -150px, 0)
+    }
+    to {
+        transform: translate3d(0, 0, 0);
+        opacity: 1
+    }
+}
+.logout{
             width: 200px;
             height: 50px;
             color: white;
-            margin-left : 1100px;
+            margin-left : 1000px;
             background-color: rgb(236, 79, 79);
             border: none;
         }
-    </style>
+
+</style>
+
 </head>
 <body>
-    
-    <form action="logout/" method="POST"> {% csrf_token %}
-        {% if user.is_authenticated %}
-        <a href="/logout/" onclick="document.getElementById('loggingout').submit()">
-        <button type="button" id="loggingout" class="logout"> Logout </button>
-        </a>
-        {%  endif %}
-    </form>
 
-    <h1 class="welcome"> Hello {{user.username}}, here is your profile</h1>
-    <br>
-    <h2 class="email-report"> Your gmail is {{user.email}}</h2>
+    <header>
+        <nav>
+            <div class="header_logo">
+                <img src="{% static 'img/profile_gif1.gif' %}" alt="">
+            </div>
+            <div class="header_links">
+                <ul class="nav_links">
+                    <li class="nav_link"><a href="/login/edit/">Home</a></li>
+                    <form action="logout/" method="POST"> {% csrf_token %}
+                        {% if user.is_authenticated %}
+                        <a href="/logout/" onclick="document.getElementById('loggingout').submit()">
+                        <button type="button" id="loggingout" class="logout"> Logout </button>
+                        </a>
+                        {%  endif %}
+                    </form>
+  
+                    <!-- <li class="nav_link"><a href="#">Repos</a></li> -->
+                </ul>
+            </div>
+        </nav>
+
+    </header>
+
+    <section class="main">
+        <!-- <p> {{request.user.profile_pic.url}} </p> -->
+        <img src="{{request.user.profile_pic.url}}" alt="" srcset="">
+        <!-- <form method="POST"> {% csrf_token %}
+            <label for="upload"></label>
+            {% if error %}
+            <label for="upload">{{error}}</label>
+            {% endif %}
+            {{form.picture}}
+
+            <button type="submit"> set Profile pic </button>
+        </form> -->
+
+        <span>{{request.user.username}}</span>
+        <p>{{request.user.wallet_address}}</p>
+        <ul>
+            <li><a target="_blank" href="https://discord.gg/JuEeGweHrb"><i class="fab fa-discord" id="discord"></i></a></li>
+            <li><a target="_blank" href="https://github.com/KanekiWeb"><i class="fab fa-github" id="github"></i></a></li>
+            <li><a target="_blank" href="https://www.youtube.com/channel/UC-XII5SSqbMOF1UX3N0Gl8g"><i class="fab fa-youtube" id="youtube"></i></a></li>
+        </ul>
+    </section>
+
+
+
+
+
+    <!-- <script src="{% static 'js/profile.js' %}"></script> -->
+    <script>
+        let $ = document
+
+        let github = $.getElementById('github')
+        let discord = $.getElementById('discord')
+        let youtube = $.getElementById('youtube')
+
+        window.onload = () => {
+            if (localStorage.getItem('github') == null) {
+                github.style.display = 'none'
+            } else {
+                github.style.display = 'block'
+            }
+            
+            if (localStorage.getItem('discord') == null) {
+                discord.style.display = 'none'
+            } else {
+                discord.style.display = 'block'
+            }
+
+            if (localStorage.getItem('discord') == null) {
+                youtube.style.display = 'none'
+            } else {
+                youtube.style.display = 'block'
+            }
+        }
+    </script>
 </body>
 </html>

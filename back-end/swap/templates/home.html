@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
+    {% load static %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -217,7 +216,7 @@
             position: absolute;
             color: white;
             border: none;
-            background-image: linear-gradient(to right, #845EC2 0%, #00C9A7 50%, #4D8076 100%);
+            background-image: linear-gradient(to right, #1c8519 0%, #00c94d 50%, #57804d 100%);
         }
         .connect-metamask:hover {
             border: 0.5px solid #00C9A7;
@@ -228,7 +227,7 @@
             margin-top: 23px;
             width: 190px;
             height: 30px;
-            border-radius: 10px;
+            border-radius: 10px;    
             position: absolute;
             color: white;
             border: none;
@@ -517,8 +516,8 @@
 
             <div id="other">
                 {% if user.is_authenticated %}
-                <button id='metamask' class="connect-metamask"> CONNECT WALLET </button>
-                <p id="address"></p>
+                <button id='metamask' class="disconnect-metamask"> CONNECT WALLET </button>
+                <p id="address" style="margin-top:50px">test</p>
                 {% endif %}
             </div>
 
@@ -549,8 +548,8 @@
             </div>
 
             <div id="image_content">
-                <img src="{% static 'cryptopunk2294.png' %}" alt="cryptopunk"
-                    style="width: 510px; height: 480px;  position: absolute; border-radius: 25px; filter: opacity(95%);">
+                <img src="{% static 'img/cryptopunk2294.png' %}"
+                style="width: 510px; height: 480px; position: absolute; border-radius: 25px; filter: opacity(95%);">
             </div>
 
         </div>
@@ -562,7 +561,7 @@
 
 
 
-<!-- ##################################################################################################################################################################### -->
+
 
 
 
@@ -571,8 +570,8 @@
 
 
         <div id="section1">
-            <img src="{% static 'first_section.jpg' %}" alt="section1" style="border:none; width: 669px; height: 460px; filter: blur(7px); position: absolute; filter: opacity(80%);">
-            <h1 id="section1-head"> SAY GOODBYE <br> TO YOUR <br> PROBLEMS </h1>
+            <img src="{% static 'img/first_section.jpg' %}" alt="section1" style="border:none; width: 669px; height: 460px; filter: blur(7px); position: absolute; filter: opacity(80%);">
+            <h1 id="section1-headO YOUR <br> PROBLEMS </h1>
             <!-- <h1 id="section1-head"> Say goodbye to problems in your projects </h2> -->
                 <div id="section1-child">
                 <h3 class="w3-container w3-center w3-animate-left"> As the world's first We have prepared an infrastrucure <br>
@@ -585,7 +584,7 @@
 
 
         <div id="section2">
-            <img src="{% static 'second_section.jpg' %}" alt="section2" style="border:none; width: 680px; height: 460px; filter: blur(3px); position: absolute; filter: opacity(80%); margin-top: -103px;">
+            <img src="{% static 'img/second_section.jpg' %}" alt="section2" style="border:none; width: 680px; height: 460px; filter: blur(3px); position: absolute; filter: opacity(80%); margin-top: -103px;">
             <h1 id="section2-head"> WHY YOU <br> SHOULD <br> CHOICE <br> US </h1>
 
             <div id="section2-child">
@@ -601,13 +600,13 @@
 
 
 
-<!-- ##################################################################################################################################################################### -->
+
 
 
 <div id="information">
 
     <div style="position: absolute; height: 250px; width: 330px;">
-        <img src="{% static 'info.jpg' %}" alt="info-wall" style="height: 250px; width: 330px; position: absolute;">
+        <img src="{% static 'img/info.jpg' %}" alt="info-wall" style="height: 250px; width: 330px; position: absolute;">
     </div>
 
     <form action="/uploaded" enctype="multipart/form-data" method="POST">
@@ -623,10 +622,10 @@
 
 
 
-<!-- ##################################################################################################################################################################### -->
+
 
 <script src="{% static 'js/home.js' %}"></script>
-<!-- ##################################################################################################################################################################### -->
+
 
 </body>
 </html>

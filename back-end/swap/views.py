@@ -1,31 +1,29 @@
 from functools import partial
 from rich import print, pretty
-from pyexpat import model
 from xmlrpc.client import ResponseError
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
-import numpy as np
-from platformdirs import user_state_dir
-from pydantic import UrlSchemeError
-from yaml import serialize
-from .serializers import UserSerializer
+from .serializers import UserSerializer, walletSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .forms import SignUp, login_form
-from django.views.generic import DetailView, FormView, CreateView, ListView
+from .forms import SignUp, login_form, UploadProfilePic
+from django.views.generic import DetailView, FormView, CreateView, ListView, UpdateView
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Profile
+from .models import User, Profile, Wallet
+from pathlib import Path
 from django.contrib import messages
-from datetime import datetime 
+from datetime import datetime as dt 
 from requests.auth import HTTPBasicAuth
+from asgiref.sync import sync_to_async, async_to_sync
 import numpy as np
+import asyncio, aiofiles
 from rich.console import Console
 console = Console()
 
@@ -33,11 +31,49 @@ class Home(View):
     def get(self, request):
         return render(request, 'home.html')
 
+@async_to_sync
+async def file_handler(file):
+    async with aiofiles(f'{Path.cwd()}/swap/static/profiles{file.name}',\
+        'wb+') as des:
+        for chunk in file.chunks():
+            await des.write(chunk) 
+
+    path = Path(
+        f'{Path.cwd()}/swap/static/profiles/{file.name}'
+    )
+    if  path.exists(): return True 
+    else: return False
+
+
+@csrf_exempt
 @login_required(login_url='/login/')
 def Profile(request):
     if request.method == 'GET':
-        return render(request, 'profile.html' , {})
+        form = UploadProfilePic()
+        return render(request, 'profile.html' , {'form' : form})
+    
+    if request.method == 'POST':
+        file_inserted = UploadProfilePic(
+            data=request.POST, files=request.FILES
+        )
+        if file_inserted.is_valid():
+            result = file_handler(request.FILES['file'])
+            if result:
+                request.user.profile_pic = file_inserted
+                request.user.save()
+                return redirect('/profile/')
+            else:
+                return render(
+                    request, 'profile.html', {'error', 'Something went wrong'})
+        return render(request, 'profile.html', {'error' : file_inserted.errors})
 
+            
+class EditProfile(View):
+    def get(self, request):
+        return render(request, 'user_update.html')
+
+
+@csrf_exempt
 def Signup(request):
     if request.method == 'GET':
         form = SignUp()
@@ -50,7 +86,6 @@ def Signup(request):
             password = form.cleaned_data.get('password')
             form.save()
 
-            # relevant_profile = Profile.objects.get(username=username)
 
             new_user = authenticate(username=username, password=password)
             if new_user is not None:
@@ -63,6 +98,7 @@ def Signup(request):
         return render(request, 'error.html', {'error' : form.errors})
 
 
+@csrf_exempt
 def Login(request):
     if request.method=='GET':
         form = login_form()
@@ -138,9 +174,22 @@ def user_api_view(request, user_id):
                     status=status.HTTP_400_BAD_REQUEST)
 
 
+class wallet_api_get(APIView):
+    def get(self, request, wallet_id):
+        wallet_ordered = get_object_or_404(Wallet, id=wallet_id)
+        wallet_seri = walletSerializer(instance=wallet_ordered)
+        return Response({
+            'message' : f'{wallet_seri.data}'})
+    
 
-@api_view(['GET'])
-def testPage(request):
-    if request.method == 'GET':
-        return Response({'message' : 'This is test'}, status=status.HTTP_200_OK)
-    return Response({'message' : 'error'})
+class wallet_api_post(APIView):
+    def post(self, request):
+        wallet_serialize = walletSerializer(data=request.data)
+        if wallet_serialize.is_valid():
+            wallet_serialize.save()
+            return Response(
+                {'message' : f"[bold green]{wallet_serialize.get('address')} was added"},
+                status=status.HTTP_201_CREATED
+            )
+        return Response({'message' : UserSerializer.errors},
+                    status=status.HTTP_406_NOT_ACCEPTABLE)

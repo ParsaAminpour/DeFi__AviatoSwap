@@ -6,17 +6,21 @@ from django.contrib.auth.models import AbstractUser
 class Wallet(models.Model):
     address = models.CharField(max_length=42, unique=True)
     balance = models.FloatField(default=0)
-    is_valid = models.BooleanField()
     is_zero_address = models.BooleanField()
 
     def __str__(self):
         return f'{self.address[:4]}...'
 
 class User(AbstractUser):
-    wallet = models.OneToOneField(Wallet, on_delete=models.CASCADE, null=True)
-    ip_address = models.CharField(max_length=12)
-    user_agent = models.CharField(max_length=256)
-    blocked_user = models.BooleanField(null=True)
+    wallet = models.OneToOneField(Wallet, on_delete=models.CASCADE, null=True, blank=True)
+    ip_address = models.CharField(max_length=12, null=True, blank=True)
+    user_agent = models.CharField(max_length=256, null=True, blank=True)
+    blocked_user = models.BooleanField(null=True, blank=True)
+    profile_pic = models.FileField(null=True, blank=True, upload_to='static/images/')
+
+    @property
+    def wallet_address(self):
+        return self.wallet.address
 
     def blocking_user(self):
         if not self.blocked_user:

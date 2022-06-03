@@ -138,4 +138,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-LOGOUT_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL='/home/'
+
+MEDIA_URL = '/images/'
+
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')

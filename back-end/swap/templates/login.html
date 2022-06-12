@@ -1,105 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load static %}
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <title>Document</title> -->
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <title>login</title>
 
-    <style>
-
-        #right {
-            float: right;
-            width: 620px;
-            height: 770px;
-            margin-bottom: 20px;
-            /* border: 1px solid red; */
-            position: relative;
-            margin-top: -10px;
-            margin-right: -10px;
-        }
-
-        #left {
-            float: left;
-            width: 729px;
-            height: 770px;
-            margin-bottom: 20px;
-            /* border: 1px solid blue; */
-            margin-top: -10px;
-            margin-left: -10px;
-        }
-
-        #logotxt{
-            color: red;
-            font-style: normal;
-            padding-left: 20px;
-            position: absolute;
-            padding-top: 0%;
-            font-family:fantasy;
-            letter-spacing: 5px;
-        }
-
-
-        /* login section */
-        #logintxt {
-            margin-left: 110px;
-            margin-top: 145px;
-            position: absolute;
-            font-family: cursive;
-        }
-        #sublogin {
-            margin-left: 110px;
-            margin-top: 190px;
-            position:absolute;
-            font-family: cursive;
-        }
-
-        label {
-            margin-left: 20px;
-        }
-
-        .username_login{
-            width : 400px;
-            height: 35px;
-            border: 1px solid gray;
-            border-radius: 15px;
-            /* box-shadow: 2px 2px 8px gray; */
-            margin-bottom: 20px;
-            margin-top: 280px;
-            margin-left: 110px;
-        }
-
-        .password {
-            width : 400px;
-            height: 35px;
-            border: 1px solid gray;
-            border-radius: 15px;
-            /* box-shadow: 2px 2px 8px gray; */
-            margin-bottom: 40px;
-            margin-top: 40px;
-            margin-left: 110px;
-        }
-
-        #login {
-            border: 1px solid gray;
-            border-radius: 15px;
-            margin-left: 110px;
-            margin-top: 25px;
-            width: 400px;
-            height: 35px;
-            background-color: rgb(73, 240, 73);
-        }
-
-        #forgot {
-            color: blue;
-            margin-left: 380px;
-            margin-bottom: -10px;
-            margin-top: -10px;
-            font-family: cursive;
-        }
-
-    </style>
 </head>
 
 

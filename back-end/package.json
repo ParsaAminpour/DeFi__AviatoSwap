@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@metamask/onboarding": "^1.0.1"
+    "@metamask/onboarding": "^1.0.1",
+    "jquery": "^3.6.0"
   }
 }

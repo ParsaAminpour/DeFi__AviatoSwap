@@ -10,464 +10,8 @@
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
     <link rel="icon" href="{% static 'TuringLogo.jpg' %}">
-    <!-- <title>Document</title> -->
-    <!-- <link rel="styleshee" href="home.css"> -->
-
-    <style>
-        #wallpaper {
-            /* background-image:  */
-            /* background-attachment: fixed;*/
-            /* border: 2px solid red;  */
-            position: relative;
-            height: 867px;
-            width: 4000px;
-            margin-left: -10px;
-            margin-top: -5px;
-            /* z-index: -1; */
-        }
-
-        #title {
-            height: 75px;
-            width: 1400px;
-            /* border: 1px solid gray; */
-            position: relative;
-        }
-
-        #buttons {
-            width: 800px;
-            height: 80px;
-            margin-left: 290px;
-            /* border: 1px solid orange; */
-            position: absolute;
-            /* position: absolute; */
-        }
-
-        #other {
-            width: 200px;
-            height: 80px;
-            /* border: 1px solid yellow; */
-            position: absolute;
-            margin-left: 1100px;
-            padding-left: 20px;
-        }
-
-        #logo {
-            width: 300px;
-            height: 90px;
-            /* border: 1px solid blue; */
-            position: absolute;
-            /* float: left; */
-            padding-top: 0%;
-            /* padding-bottom: 60px; */
-        }
-
-
-
-        /* title buttons styles: */
-        /* buttnos */
-        a {
-            text-decoration: none;
-        }
-
-        a.button_link {
-            text-decoration: none;
-            color: white;
-            font-size: large;
-            font-style:unset;
-        }
-
-        .b_link:hover {
-            color: rgb(207, 138, 10);
-        }
-
-        .home {
-            border-radius: 10px;
-            border: none;
-            width: 100px;
-            height: 30px;
-            margin-top: 20px;
-            margin-left: 20px;
-            /* box-shadow: 7px 10px 18px gray; */
-            background-color: transparent;
-        }
-        .home:hover {
-            box-shadow: 7px 10px 22px gray;
-        }
-
-        .marketplace {
-            border: none;
-            border-radius: 10px;
-            margin-left: 20px;
-            margin-top: 20px;
-            width: 120px;
-            height: 30px;
-            /* box-shadow: 10px 10px 18px gray; */
-            background-color: transparent;
-        }
-        .marketplace:hover{
-            box-shadow: 7px 10px 22px gray;
-        }
-
-        .create {
-            border: none;
-            height: 30px;
-            width: 100px;
-            border-radius: 10px;
-            margin-left: 20px;
-            margin-top: 20px;
-            /* box-shadow: 10px 10px 18px gray; */
-            background-color: transparent;
-        }
-        .create:hover {
-            box-shadow: 7px 10px 22px gray;
-        }
-
-        .source {
-            border: none;
-            border-radius: 10px;
-            height: 30px;
-            width: 100px;
-            margin-left: 20px;
-            margin-top: 20px;
-            /* box-shadow: 10px 10px 18px gray; */
-            background-color: transparent;
-        }
-        .source:hover {
-            box-shadow: 7px 10px 22px gray;
-        }
-
-        .about {
-            border: none;
-            border-radius: 10px;
-            height: 30px;
-            width: 100px;
-            margin-left: 20px;
-            margin-top: 20px;
-            /* box-shadow: 10px 10px 18px gray; */
-            background-color: transparent;
-        }
-        .about:hover {
-            box-shadow: 7px 10px 22px gray;
-        }
-
-        /* .register {
-            border: none;
-            border-radius: 10px;
-            height: 25px;
-            width: 120px;
-            margin-left: 30px;
-            margin-top: 13px;
-            background-color: rgb(123, 235, 123);
-            position: absolute;
-        } */
-
-        /* .login {
-            border: none;
-            border-radius: 10px;
-            width: 120px;
-            height: 25px;
-            margin-left: 30px;
-            margin-top: 48px;
-            background-color: lightcyan;
-            position: absolute;
-        } */
-
-
-
-
-        /* style="padding-left: 10px; color: blue; font-style:normal;" */
-        #logotxt {
-            color: red;
-            font-style:normal;
-            padding-left: 70px;
-            font-size: 40px;
-            position: absolute;
-            padding-top: 0%;
-            font-family: fantasy;
-            letter-spacing: 9px;
-        }
-
-
-        /* select styles */
-        /* .shop {
-            width: 100px;
-            height: 30px;
-            border: none;
-            border-radius: 10px;
-            margin-top: 17px;
-            margin-left: 70px;
-            background-color: transparent;
-            position: absolute;
-            color: white;
-        }
-
-        .shop:hover {
-            color:rgb(207, 138, 10);
-            /* text-shadow: 10px 10px 10px rgb(189, 186, 186); */
-            /* border: none;
-        } */
-
-        .connect-metamask {
-            margin-left: -100px;
-            margin-top: 23px;
-            width: 190px;
-            height: 30px;
-            border-radius: 10px;
-            position: absolute;
-            color: white;
-            border: none;
-            background-image: linear-gradient(to right, #1c8519 0%, #00c94d 50%, #57804d 100%);
-        }
-        .connect-metamask:hover {
-            border: 0.5px solid #00C9A7;
-        }
-
-        .disconnect-metamask {
-            margin-left: -100px;
-            margin-top: 23px;
-            width: 190px;
-            height: 30px;
-            border-radius: 10px;    
-            position: absolute;
-            color: white;
-            border: none;
-            /* Created with https://www.css-gradient.com */
-            background: #CA1C17;
-            background: -webkit-linear-gradient(left, #CA1C17, #FF517F);
-            background: -moz-linear-gradient(left, #CA1C17, #FF517F);
-            background: linear-gradient(to right, #CA1C17, #FF517F);
-        }
-        /* Created with https://www.css-gradient.com */
-
-
-        /* content divs*/
-        #content {
-            position: relative;
-            height: 600px;
-            width: 1400px;
-            /* margin-top: 20px; */
-            /* border: 1px solid saddlebrown; */
-        }
-
-        #des1 {
-            height: 580px;
-            width: 700px;
-            /* border: 1px solid black; */
-            /* margin-top: 10px; */
-            padding-left: 30px;
-            padding-right: 20px;
-            padding-top: 35px;
-            line-height: 30px;
-            /* text-shadow: 10px 10px 10px gray; */
-            position: absolute;
-        }
-
-        #start_solving{
-            width: 313px;
-            height: 40px;
-            background-image: linear-gradient(to right, rgb(255, 0, 184) 0%, rgb(100, 161, 255) 50%, rgb(0, 102, 255) 100%);
-            margin-left: 33px;
-            margin-top: 20px;
-            border: none;
-        }
-
-        #image_content {
-            width: 510px;
-            height: 480px;
-            position: absolute;
-            /* border: 1px solid red; */
-            margin-left: 770px;
-            margin-top: 60px;
-        }
-
-
-
-/* ##################################################################################################################################################################### */
-    
-        #introduce {
-            height: 3000px;
-            width: 1350px;
-            margin-left: 0px;
-            /* border: 2px solid rgb(124, 124, 124); */
-            margin-top: -90px;
-            z-index: -1;
-            position: absolute;
-            background-color: rgb(204, 202, 202);
-            /* filter: opacity(50%); */
-        }
-        #filtering {
-            width: 1365px;
-            height: 100px;
-            margin-left: -5px;
-            margin-top: 91px;
-            filter: opacity(20%);
-            border: none; 
-            position: relative;
-            z-index: 1; 
-            background-color: gray;
-        }  
-
-     
-
-
-        #section1 {
-            position: relative;
-            width: 640px;
-            height: 500px;
-            /* margin-left: 5px; */
-            /* margin-top: 50px; */
-            border: 2px solid red;
-            /* border-radius: 20px; */
-            margin-right: 0px;
-            background-color: transparent;
-            border: none;
-        }   
-        #section1-head {
-            position: absolute;
-            color: white;
-            filter: opacity(50%);
-            text-justify: newspaper;
-            line-height: 90px;
-            font-size: 70px;
-            margin-left: 10px;
-            margin-top: 47px;
-        }
-        #section1-parag {
-            color: black;
-            position:absolute;
-            margin-left: 20px;
-            margin-top: 15px;
-            line-height: 30px;
-            font-family:sans-serif;
-            letter-spacing: 2px;
-            /* letter-spacing: 1.5px; */
-            font-size: 16px;
-        }
-        #section1-bttn {
-            border: none;
-            background-color: #16ff99;
-            margin-left: 462px;
-            margin-top: -2px;
-            position:relative;
-            color: white;
-            width: 190px;
-            height: 35px;
-            z-index: 2;
-        }
-        #section1-child {
-            position: absolute;
-            width: 669px;
-            height: 170px;
-            margin-left: 0px;
-            margin-top: 400px;
-            background-color: white;
-            border-right: 1px solid black;
-        }
-
-
-
-
-        #section2 {
-            position: relative;
-            width: 630px;
-            height: 400px;
-            margin-left: 680px;
-            margin-top: -397px;
-            border: 1px solid red;
-            border-radius: 20px;
-            background-color: transparent;
-            border: none;
-        }
-        #section2-child {
-            position: absolute;
-            width: 679px;
-            height: 170px;
-            margin-left: 0px;
-            margin-top: 298px;
-            background-color: white;
-            border-left: 1px solid black;
-        }
-        #section2-bttn {
-            border: none;
-            background-color: #ff5e42;
-            margin-left: 462px;
-            margin-top: 0px;
-            position:absolute;
-            color: white;
-            width: 190px;
-            height: 35px;
-            z-index: 2;
-        }
-        #section2-head {
-            position: absolute;
-            color: white;
-            filter: opacity(40%);
-            text-justify: newspaper;
-            line-height: 80px;
-            font-size: 70px;
-            margin-left: 10px;
-            margin-top: -55px;
-        }
-
-
-
-        /* ##################################################################################################################################################################### */
-
-
-        #information {
-            width: 1300px;
-            height: 250px;
-            border: 1px solid black;
-            position: relative;
-            margin-top: 1200px;
-            margin-left: 25px;
-        }
-
-        .custom-file-input {
-            width: 0.1px;
-            height: 0.1px;
-            opacity: 0;
-            overflow: hidden;
-            position: absolute;
-            z-index: -1;
-            margin-left: 200px;
-            margin-top: 30px;
-            height: 30px;
-            width: 200px;
-            position: relative;
-        }
-        .custom-file-input + label {
-            font-size: 1.25em;
-            font-weight: 700;
-            color: black;   
-            background-color: white;
-            display: inline-block;
-        }
-
-        .custom-file-input:focus + label,
-        .custom-file-input + label:hover {
-            background-color: white;
-        }
-        .custom-file-input + label {
-	        cursor: pointer; /* "hand" cursor */
-        }
-
-
-
-        .upload-submit {
-            margin-top: 50px; 
-            position: absolute;
-            margin-left: 521px;
-            margin-top: -31.5px;
-            border: none;
-            color: black;
-            background-color: #16ff99;
-            height: 29px;
-        }
-        /* .upload-submit:hover {
-            background-color: #16ff99;
-        } */
-    </style>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <title>Home</title>
 </head>
 
 
@@ -489,23 +33,23 @@
 
             <!-- buuttons -->
             <div id="buttons">
-                <button class="home"><a class='button_link' href="https://github.com/AminpourParsa/Swap" target="_blank"> Source </a></button>
+                <button class="home"><a class='button_link' href="https://github.com/AminpourParsa/Swap"> Source </a></button>
 
-                <button class="marketplace"> <a class='button_link' href="" target="_blank">
-                        Marketplace </a></button>
+                <button class="marketplace"> <a class='button_link' href="#">
+                        Chatroom </a></button>
                 
                 {% if user.is_authenticated %}
-                <button class="create"> <a class='button_link' href="/profile/" target="_blank"> Profile
+                <button class="create"> <a class='button_link' href="/profile/"> Profile
                     </a> </button>
                 {% endif %}
 
                 {% if not user.is_authenticated %}
-                <button class="source"> <a class='button_link' href="/signup/" target="_blank"> SignUp
+                <button class="source"> <a class='button_link' href="/signup/"> SignUp
                     </a> </button>
                 {% endif %}
 
                 {% if not user.is_authenticated %}
-                <button class="about"> <a class='button_link' href="/login/" target="_blank"> Login
+                <button class="about"> <a class='button_link' href="/login/"> Login
                     </a></button>
                 {% endif %}
                 <!-- <button class="register"><a href="http://127.0.0.1:5050/register" target="_blank" style="color: black;" > Register
@@ -517,7 +61,7 @@
             <div id="other">
                 {% if user.is_authenticated %}
                 <button id='metamask' class="disconnect-metamask"> CONNECT WALLET </button>
-                <p id="address" style="margin-top:50px">test</p>
+                <p id="address" style="margin-top:50px"></p>
                 {% endif %}
             </div>
 
@@ -548,62 +92,17 @@
             </div>
 
             <div id="image_content">
-                <img src="{% static 'img/cryptopunk2294.png' %}"
-                style="width: 510px; height: 480px; position: absolute; border-radius: 25px; filter: opacity(95%);">
+                <img src="{% static 'img/erlich.jpg' %}"
+                style="width: 510px; height: 420px; position: absolute; border-radius: 25px; filter: opacity(95%);">
             </div>
 
         </div>
 
-        <!-- <div id="filtering">
-        </div>  -->
-        <!-- End of wallaper div -->
     </div>
 
 
 
-
-
-
-
-    <!-- Start of introduce div -->
-    <div id="introduce">
-
-
-        <div id="section1">
-            <img src="{% static 'img/first_section.jpg' %}" alt="section1" style="border:none; width: 669px; height: 460px; filter: blur(7px); position: absolute; filter: opacity(80%);">
-            <h1 id="section1-headO YOUR <br> PROBLEMS </h1>
-            <!-- <h1 id="section1-head"> Say goodbye to problems in your projects </h2> -->
-                <div id="section1-child">
-                <h3 class="w3-container w3-center w3-animate-left"> As the world's first We have prepared an infrastrucure <br>
-                                         that people can share their problems and BUY source code <br>
-                                         from a person that could solve this problem <br>
-                </h3>
-                <button id="section1-bttn"><a href="http://127.0.0.1:5050/marketplace" style="color: black;"> USE IT NOW </a></button>
-                </div>
-        </div>
-
-
-        <div id="section2">
-            <img src="{% static 'img/second_section.jpg' %}" alt="section2" style="border:none; width: 680px; height: 460px; filter: blur(3px); position: absolute; filter: opacity(80%); margin-top: -103px;">
-            <h1 id="section2-head"> WHY YOU <br> SHOULD <br> CHOICE <br> US </h1>
-
-            <div id="section2-child">
-                <h3 class="w3-container w3-center w3-animate-right">
-                    At the past several years, a group elites gathered together and tried 
-                    develope NFT area with their ideas. <br>
-                    and finally We stablish a First purposeful NFT marketplace
-                </h3>
-                <button id=section2-bttn><a href="http://127.0.0.1:5050/create/article1" style="color: black;"> Read blog  </a></button>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-
-<div id="information">
+<!-- <div id="information">
 
     <div style="position: absolute; height: 250px; width: 330px;">
         <img src="{% static 'img/info.jpg' %}" alt="info-wall" style="height: 250px; width: 330px; position: absolute;">
@@ -618,7 +117,7 @@
     </form>
 
 </div>
-
+ -->
 
 
 

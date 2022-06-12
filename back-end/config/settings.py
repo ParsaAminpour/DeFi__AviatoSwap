@@ -53,7 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'swap.middleware.IncludesBlackList',
+    # 'weblate.accounts.AuthenticationMiddleware',
+    # 'swap.middleware.IncludesBlackList'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -141,6 +142,6 @@ REST_FRAMEWORK = {
 
 LOGOUT_REDIRECT_URL='/home/'
 
-MEDIA_URL = '/images/'
+MEDIA_URL = '/media/'  
 
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')

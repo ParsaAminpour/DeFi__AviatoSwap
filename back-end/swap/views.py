@@ -1,18 +1,22 @@
-from functools import partial
 from rich import print, pretty
-from xmlrpc.client import ResponseError
+from collections import deque
+from queue import Queue
 from django import forms
+from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
+from django.utils.translation import gettext as _
 from .serializers import UserSerializer, walletSerializer
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+import django.contrib.auth.models as django_auth_models
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .forms import SignUp, login_form, UploadProfilePic
-from django.views.generic import DetailView, FormView, CreateView, ListView, UpdateView
+from .forms import SignUp, login_form, UploadProfilePic, EditProfileForm
+from django.views.generic.edit import UpdateView
+from django.views.generic import DetailView, FormView, CreateView, ListView
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm
@@ -29,6 +33,8 @@ console = Console()
 
 class Home(View):
     def get(self, request):
+        if request.user.is_anonymous:
+            redirect('/login/')
         return render(request, 'home.html')
 
 @async_to_sync
@@ -46,7 +52,7 @@ async def file_handler(file):
 
 
 @csrf_exempt
-@login_required(login_url='/login/')
+@login_required(login_url='/login/')    
 def Profile(request):
     if request.method == 'GET':
         form = UploadProfilePic()
@@ -68,11 +74,20 @@ def Profile(request):
         return render(request, 'profile.html', {'error' : file_inserted.errors})
 
             
-class EditProfile(View):
-    def get(self, request):
-        return render(request, 'user_update.html')
+class EditProfile(UpdateView):
+    model = User
+    form_class = EditProfileForm
+    template_name = 'user_update.html'
+    success_url = '/profile/'
+
+    def get_object(self):
+        return get_object_or_404(self.model, pk=self.request.user.id)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
+    
 @csrf_exempt
 def Signup(request):
     if request.method == 'GET':
@@ -114,9 +129,9 @@ def Login(request):
                 login(request, result)
                 console.log('[bold green]username was logged in[/bold green]')
                 return render(request, 'profile.html', {'user' : request.user})
-            else:
-                console.log('[bold red]authentication failed[/bold red]')
-                return redirect('/login/')
+            
+            console.log('[bold red]authentication failed[/bold red]')
+            return redirect('/login/')
         return redirect('/login/')
 
 

@@ -1,7 +1,6 @@
+import profile
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-
 
 class Wallet(models.Model):
     address = models.CharField(max_length=42, unique=True)
@@ -15,27 +14,26 @@ class User(AbstractUser):
     wallet = models.OneToOneField(Wallet, on_delete=models.CASCADE, null=True, blank=True)
     ip_address = models.CharField(max_length=12, null=True, blank=True)
     user_agent = models.CharField(max_length=256, null=True, blank=True)
-    blocked_user = models.BooleanField(null=True, blank=True)
-    profile_pic = models.FileField(null=True, blank=True, upload_to='static/images/')
+    profile_pic = models.FileField(null=True, blank=True, upload_to='static/images')
+    about = models.TextField(max_length=256, null=True, blank=True)
 
     @property
     def wallet_address(self):
-        return self.wallet.address
+        if self.wallet.address is not None:
+            return self.wallet.address
+        else:
+            return ''
 
-    def blocking_user(self):
-        if not self.blocked_user:
-            self.blocked_user = True
-        else: pass
-        self.save()
-    
-    def unblocking_user(self):
-        if self.blocked_user:
-            self.blocked_user = False
-        else: pass
-        self.save()
+    @property
+    def get_profile_pic(self):
+        if self.profile_pic == None:
+            return '/static/images/unknown.jpg'
+        else:
+            return self.profile_pic
 
     def __str__(self):
         return self.username
+
 
 class PurchaseMap(models.Model):
     PAIR_CHOICES = [

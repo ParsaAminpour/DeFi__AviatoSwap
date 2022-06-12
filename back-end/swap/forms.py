@@ -4,6 +4,7 @@ from matplotlib import widgets
 from .models import User
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
+
 from email.mime.multipart import MIMEMultipart as main
 from email.mime import text
 from random import randint
@@ -84,4 +85,33 @@ class UploadProfilePic(forms.Form):
         return self.cleaned_data.get('picture')
 
 
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username','about', 'email', 'profile_pic')
 
+        widgets = {
+            'username' : forms.TextInput(attrs={
+                'class' : 'username-edit', 'placeholder':'New username',
+                 'required' : False
+            }),
+            'about' : forms.TextInput(attrs={
+                'class' : 'about-edit', 'placeholder' : 'About you...',
+                'required' : False
+            }),
+            'email' : forms.TextInput(attrs={
+                'class' : 'email-edit' , 'placeholder' : 'New email',
+                'required' : False
+            }),
+            'profile_pic' : forms.FileInput(attrs={
+                'class' : 'pic-edit' , 'placeholder' : 'New pic',
+                'required' : False
+            })
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        self.fields['username'].required = False
+        self.fields['email'].required = False
+        self.fields['about'].required = False
+        self.fields['profile_pic'].required = False

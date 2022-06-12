@@ -1,14 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <center>
-        <h1 style="margin-top: 100px"> Under the Creation </h1>
-    </center>
-</body>
+<html>
+{% load static %}
+  <head>
+    <title>Edit Information </title>
+    <link rel="stylesheet" href="{% static 'css/user_update.css' %}" />
+    <link
+      rel="stylesheet"
+      href="{% static 'css/user_update.css' %}"
+    />
+    <title> Edit Profile </title>
+  </head>
+  <body>
+    <div id="header">
+      <h2>{{user.username}}</h2>
+    </div>
+    <div id="content">
+      <!-- The '#content' div is a flexbox containing divs '#left' and '#right' -->
+      <!-- The left portion of the profile page -->
+      <div id="left"> 
+        {% if user.profile_pic %}
+          <img class="profile-picture" src="{{user.profile_pic.url}}" />
+        {% else %}
+          <img src="{% static 'images/unknown.jpg' %}" alt="">
+        {% endif %}
+
+        <h1>{{username}}</h1>
+        <!-- <h4 style="color:red">{{error}}</h4> -->
+        <div class="icons">
+          <a href="#">
+            <img src="{% static 'img/github.png' %}" class="icon" />
+          </a>
+
+          <a href="#" title="discord icons">
+            <img src="{% static 'img/discord.png' %}" class="icon" />
+          </a>
+
+          <a href="#">
+            <img src="{% static 'img/youtube.png' %}" class="icon" />
+          </a>
+        </div>
+        <div id="contact">
+          <div class="contact-info">
+            <i class="fa fa-envelope contact-icon"></i>
+            <div class="contact-text">Email: {{user.email}}</div>
+          </div>
+          <hr />
+          <div class="contact-info">
+            <i class="fa fa-phone contact-icon"></i>
+            <div class="contact-text">
+              {% if user.wallet %}
+                <p id="'wallet">Wallet: {{user.wallet_address | slice:":9"}}...</p>
+              {% endif %}
+              </div>
+          </div>
+          <hr />
+
+          <hr />
+        </div>
+      </div>
+      <!-- The right portion of the profile page -->
+      <div id="right">
+        <h1>About me</h1>
+        <p>
+          {% if user.about is not None %}
+            {{user.about}}
+          {% endif %}
+
+          {% if user.about is None %}
+            Pls set your bio
+          {% endif %}
+        </p>
+        <hr />
+        <!-- The following div is another flexbox -->
+        <div id="more-about-me">
+          <div id="skills-container">
+            
+            <form method="POST"> {% csrf_token %}
+              {{form.username}} 
+              {{form.email}}
+              {{form.about}}
+              {{form.profile_pic}}
+              <button type="submit" id="submit"> Update </button>
+            </form>
+
+          </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'js/user_update.js' %}"></script>
+  </body>
 </html>

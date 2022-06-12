@@ -20,5 +20,5 @@ urlpatterns = [
     path('api/', obtain_auth_token),
     path('api/wallet/<int:wallet_id>/', wallet_api_get.as_view()),
     path('api/wallet/add/', wallet_api_post.as_view()),
-    path('login/edit/', EditProfile.as_view())
+    path('profile/edit/', EditProfile.as_view())
 ]

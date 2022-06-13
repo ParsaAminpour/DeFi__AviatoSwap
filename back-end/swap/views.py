@@ -25,6 +25,7 @@ from pathlib import Path
 from django.contrib import messages
 from datetime import datetime as dt 
 from requests.auth import HTTPBasicAuth
+from django.conf import settings
 from asgiref.sync import sync_to_async, async_to_sync
 import numpy as np
 import asyncio, aiofiles
@@ -51,6 +52,21 @@ async def file_handler(file):
     else: return False
 
 
+
+class EditProfile(UpdateView):
+    model = User
+    form_class = EditProfileForm
+    template_name = 'user_update.html'
+    success_url = '/profile/'
+
+    def get_object(self):
+        return get_object_or_404(self.model, pk=self.request.user.id)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+
 @csrf_exempt
 @login_required(login_url='/login/')    
 def Profile(request):
@@ -74,19 +90,6 @@ def Profile(request):
         return render(request, 'profile.html', {'error' : file_inserted.errors})
 
             
-class EditProfile(UpdateView):
-    model = User
-    form_class = EditProfileForm
-    template_name = 'user_update.html'
-    success_url = '/profile/'
-
-    def get_object(self):
-        return get_object_or_404(self.model, pk=self.request.user.id)
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
-
-
     
 @csrf_exempt
 def Signup(request):
@@ -193,8 +196,7 @@ class wallet_api_get(APIView):
     def get(self, request, wallet_id):
         wallet_ordered = get_object_or_404(Wallet, id=wallet_id)
         wallet_seri = walletSerializer(instance=wallet_ordered)
-        return Response({
-            'message' : f'{wallet_seri.data}'})
+        return Response(wallet_seri.data)
     
 
 class wallet_api_post(APIView):
@@ -203,8 +205,8 @@ class wallet_api_post(APIView):
         if wallet_serialize.is_valid():
             wallet_serialize.save()
             return Response(
-                {'message' : f"[bold green]{wallet_serialize.get('address')} was added"},
+                wallet_serialize.data,
                 status=status.HTTP_201_CREATED
             )
-        return Response({'message' : UserSerializer.errors},
+        return Response(UserSerializer.errors,
                     status=status.HTTP_406_NOT_ACCEPTABLE)

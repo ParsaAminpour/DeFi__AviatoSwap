@@ -13,7 +13,7 @@ body {
     font-family: "Poppins", sans-serif;
 }
 
-/* Nav Bar */
+
 
 header nav {
     display: flex;
@@ -178,11 +178,46 @@ section.main ul li a:hover {
         opacity: 1
     }
 }
-.logout{
-            width: 200px;
-            height: 50px;
-            color: white;
-            margin-left : 1000px;
-            background-color: rgb(236, 79, 79);
-            border: none;
-        }
+
+
+.logout {
+    background-color: rgb(241, 50, 50);
+    height: 60px;
+    width: 200px;
+    border: none;
+    color: wheat;
+    font-size: medium;
+    position: static;
+    margin-left: 1000px;
+}
+
+
+.connect-metamask {
+    margin-left: -450px;
+    margin-bottom: 100px;
+    width: 200px;
+    height: 60px;
+    position: absolute;
+    font-size: medium;
+    color: white;
+    border: none;
+    background: linear-gradient(to right, #1c8519 0%, #00c94d 50%, #57804d 100%);
+}
+.connect-metamask:hover {
+    border: 0.5px solid #00C9A7;
+}
+
+.disconnect-metamask {
+    margin-left: -450px;
+    margin-bottom: 100px;
+    position: absolute;
+    width: 200px;
+    font-size: medium;
+    height: 60px;
+    color: white;
+    border: none;
+    background: #CA1C17;
+    background: -webkit-linear-gradient(left, #CA1C17, #FF517F);
+    background: -moz-linear-gradient(left, #CA1C17, #FF517F);
+    background: linear-gradient(to right, #CA1C17, #FF517F);
+}

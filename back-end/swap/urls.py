@@ -10,7 +10,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 urlpatterns = [
     path('home/', Home.as_view()),
     path('signup/', Signup),
-    path('profile/', Profile),
+    path('profile/', Profile, name='profile'),
     path('swap/', Swap.as_view()),
     path('info/', Info.as_view()),
     path('login/', Login),

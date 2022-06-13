@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
-{% if user.is_authenticated %}
+<!-- {% if user.is_authenticated %} -->
 <head>
-    <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="assets/imgs/inaya_pfp.gif">
+    <!-- <link rel="icon" href="assets/imgs/inaya_pfp.gif"> -->
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
     <title>Profile</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous">
 </head>
-<body>
 
+<body>
+{{ request.user.id|json_script:"user_id" }}
     <header>
         <nav>
             <div class="header_logo">
                 <img src="{% static 'img/profile_gif1.gif' %}" alt="">
             </div>
             <div class="header_links">
+
+                
                 <ul class="nav_links">
                     <li class="nav_link"><a href="/profile/edit/">Edit Profile</a></li>
                     <li class="nav_link"><a href="/home/">Home</a></li>
                     <form action="logout/" method="POST"> {% csrf_token %}
                         {% if user.is_authenticated %}
                             <a href="/logout/" onclick="document.getElementById('loggingout').submit()">
-                          <button type="button" id="loggingout" class="logout"> Logout </button>
+                            <button type="button" id="loggingout" class="logout"> Logout </button>
                         </a>
                         {%  endif %}
                     </form>
+
+                    <div id="other">
+                        {% if user.is_authenticated %}
+                            <button id='meta' class="disconnect-metamask"> CONNECT WALLET </button>
+                        {% endif %}
+                    </div>
                 </ul>
+
+
             </div>
         </nav>
 
@@ -61,34 +69,9 @@
         <center> {{user.about}} </center>
     </section>
 
-    <!-- <script src="{% static 'js/profile.js' %}"></script> -->
-    <script>
-        let $ = document
 
-        let github = $.getElementById('github')
-        let discord = $.getElementById('discord')
-        let youtube = $.getElementById('youtube')
+<script type="module" src="{% static 'js/profile.js' %}"></script>
 
-        window.onload = () => {
-            if (localStorage.getItem('github') == null) {
-                github.style.display = 'none'
-            } else {
-                github.style.display = 'block'
-            }
-            
-            if (localStorage.getItem('discord') == null) {
-                discord.style.display = 'none'
-            } else {
-                discord.style.display = 'block'
-            }
-
-            if (localStorage.getItem('discord') == null) {
-                youtube.style.display = 'none'
-            } else {
-                youtube.style.display = 'block'
-            }
-        }
-    </script>
 </body>
-{% endif %}
+<!-- {% endif %} -->
 </html>

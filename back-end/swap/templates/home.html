@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load static %}
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
-    <link rel="icon" href="{% static 'TuringLogo.jpg' %}">
+<!--     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
+<!--     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" /> -->
+    <!-- <link rel="icon" href="{% static 'TuringLogo.jpg' %}"> -->
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <title>Home</title>
 </head>
@@ -25,15 +24,14 @@
 
 
             <!-- logo -->
-            <div id="logo">
-                <!-- <img src="asteria_logo.jpg" alt="asteria_logo" width="100" height="100"> -->
+            <div id="logo"> 
                 <h1 id="logotxt"> AVIATO </h1>
             </div>
 
 
             <!-- buuttons -->
             <div id="buttons">
-                <button class="home"><a class='button_link' href="https://github.com/AminpourParsa/Swap"> Source </a></button>
+                <button class="home"><a class='button_link' href="https://github.com/ParsaAminpour/Aviato-Swap"> Source </a></button>
 
                 <button class="marketplace"> <a class='button_link' href="#">
                         Chatroom </a></button>
@@ -52,17 +50,7 @@
                 <button class="about"> <a class='button_link' href="/login/"> Login
                     </a></button>
                 {% endif %}
-                <!-- <button class="register"><a href="http://127.0.0.1:5050/register" target="_blank" style="color: black;" > Register
-                    </a></button>
-                <button class="login"><a href="http://127.0.0.1:5050/login" target="_blank" style="color: black;"> Login </a></button> -->
-            </div>
 
-
-            <div id="other">
-                {% if user.is_authenticated %}
-                <button id='metamask' class="disconnect-metamask"> CONNECT WALLET </button>
-                <p id="address" style="margin-top:50px"></p>
-                {% endif %}
             </div>
 
         </div>
@@ -99,28 +87,6 @@
         </div>
 
     </div>
-
-
-
-<!-- <div id="information">
-
-    <div style="position: absolute; height: 250px; width: 330px;">
-        <img src="{% static 'img/info.jpg' %}" alt="info-wall" style="height: 250px; width: 330px; position: absolute;">
-    </div>
-
-    <form action="/uploaded" enctype="multipart/form-data" method="POST">
-        <input type="file" name="upload" id="upload" class="custom-file-input">
-        <label for="upload"> Choose file </label>
-        <p> {{send_accept}}</p> <p> {{send_error}} </p>
-        <br>
-        <input type="submit" value="upload" class="upload-submit">
-    </form>
-
-</div>
- -->
-
-
-
 
 
 <script src="{% static 'js/home.js' %}"></script>

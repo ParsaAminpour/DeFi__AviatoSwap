@@ -118,6 +118,19 @@ async function addAddress(address, balance, is_zero) {
     })
 }
 
+async function get_balance(address) {
+    try {
+        web3.eth.getBalance(address, (error, wei) => {
+            if(!error) {
+                var balance = web3.fromWei(wei, 'ether')
+                return balance
+            }
+        })
+    } catch(err) {
+        return false
+    }
+}
+
 
 metamask.addEventListener('click', async() => {
     let accounts = await ethereum.enable()

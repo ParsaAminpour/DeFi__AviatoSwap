@@ -1,7 +1,7 @@
 from os import stat
 from django.urls import path
 from .views import Home, Signup, Profile, Swap, Info, Login, AddUserApiView,\
-    user_api_view, wallet_api_get, wallet_api_post, EditProfile
+    user_api_view, wallet_api_get, wallet_api_post, EditProfile, Donation
 from django.contrib.auth.views import LogoutView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -14,6 +14,7 @@ urlpatterns = [
     path('swap/', Swap.as_view()),
     path('info/', Info.as_view()),
     path('login/', Login),
+    path('donation/', Donation.as_view()),
     path('logout/', LogoutView.as_view()),
     path('api/user/<int:user_id>/', user_api_view),
     path('api/user/add/', AddUserApiView.as_view()),

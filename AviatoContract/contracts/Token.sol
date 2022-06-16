@@ -57,7 +57,7 @@ contract Token {
         return true;
     }
 
-    
+
     function _transfer(address _from, address _to, uint256 _value) internal {
         require(balances[_from] >= _value, "Insufficient balance");
         balances[_from] = balances[_from].sub(_value);

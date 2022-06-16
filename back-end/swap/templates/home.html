@@ -35,7 +35,7 @@
 
                 <button class="marketplace"> <a class='button_link' href="#">
                         Chatroom </a></button>
-                
+
                 {% if user.is_authenticated %}
                 <button class="create"> <a class='button_link' href="/profile/"> Profile
                     </a> </button>
@@ -76,12 +76,12 @@
 
                 <button id='start_solving'><a href="/swap/" style="text-decoration: none; color: black; font-size:18px"> Trading </a></button>
 
-                <!-- End of des div -->
+                <button id='start_solving'><a href="/donation/" style="text-decoration: none; color: black; font-size:18px"> Donation </a></button>
             </div>
 
             <div id="image_content">
-                <img src="{% static 'img/erlich.jpg' %}"
-                style="width: 510px; height: 420px; position: absolute; border-radius: 25px; filter: opacity(95%);">
+                <img src="{% static 'img/cryptopunk2294.png' %}"
+                style="width: 510px; height: 480px; position: absolute; border-radius: 25px; filter: opacity(95%);">
             </div>
 
         </div>

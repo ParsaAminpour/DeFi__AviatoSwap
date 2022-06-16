@@ -7,12 +7,21 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+
 from django.utils.translation import gettext as _
 from .serializers import UserSerializer, walletSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 import django.contrib.auth.models as django_auth_models
 from rest_framework.views import APIView
+from django.core.mail import EmailMessage
+from django.contrib import messages
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .forms import SignUp, login_form, UploadProfilePic, EditProfileForm
@@ -25,6 +34,8 @@ from .models import User, Profile, Wallet
 from pathlib import Path
 from django.contrib import messages
 from datetime import datetime as dt 
+from random import randint
+from hashlib import sha256
 from requests.auth import HTTPBasicAuth
 from django.conf import settings
 from asgiref.sync import sync_to_async, async_to_sync
@@ -32,6 +43,7 @@ import numpy as np
 import asyncio, aiofiles
 from rich.console import Console
 console = Console()
+
 
 class Home(View):
     def get(self, request):
@@ -91,7 +103,9 @@ def Profile(request):
         return render(request, 'profile.html', {'error' : file_inserted.errors})
 
             
-    
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 @csrf_exempt
 def Signup(request):
     if request.method == 'GET':
@@ -100,11 +114,25 @@ def Signup(request):
 
     if request.method == 'POST':
         form = SignUp(request.POST)
-        if form.is_valid(): 
+        if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            form.save()
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
 
+            code = urlsafe_base64_encode(
+                force_bytes(randint(100000,999999)))
+
+            email = EmailMessage('Email Verification Code ',
+            render_to_string('email_template.html', {
+                'user' : username,
+                'code' : urlsafe_base64_decode(code).decode('utf-8')
+                }), 
+            settings.EMAIL_HOST_USER, 
+            form.cleaned_data.get('email'))
+
+            
 
             new_user = authenticate(username=username, password=password)
             if new_user is not None:
@@ -112,6 +140,7 @@ def Signup(request):
             console.log(f'{username} was added')
             return redirect('/login/')
         return render(request, 'error.html', {'error' : form.errors})
+
 
 
 @csrf_exempt
@@ -142,11 +171,15 @@ class Info(View):
 
 class Swap(View):
     def get(self, request):
-        return render(request, 'swap.html', {})
+        return render(request, 'trading.html', {})
     
 class ErrorPage(View):
     def get(self, request):
         return render(request, 'error.html', {'error' : ''})
+
+class Donation(View):
+    def get(self, request):
+        return render(request, 'donation.html', {})
 
 
 ### Serializers view ###

@@ -3,6 +3,7 @@ from collections import deque
 from queue import Queue
 from django import forms
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
@@ -110,9 +111,6 @@ def Signup(request):
                 login(request, new_user)
             console.log(f'{username} was added')
             return redirect('/login/')
-            # return render(request, 'profile.html', {
-            #     'user' : request.user,
-            # })
         return render(request, 'error.html', {'error' : form.errors})
 
 
@@ -130,7 +128,7 @@ def Login(request):
             result = authenticate(username=username, password=password)
             if result is not None:
                 login(request, result)
-                console.log('[bold green]username was logged in[/bold green]')
+                console.log(f'[bold green]{username} was logged in[/bold green]')
                 return render(request, 'profile.html', {'user' : request.user})
             
             console.log('[bold red]authentication failed[/bold red]')
@@ -198,6 +196,22 @@ class wallet_api_get(APIView):
         wallet_seri = walletSerializer(instance=wallet_ordered)
         return Response(wallet_seri.data)
     
+    def put(self, request, wallet_id):
+        wallet_ordered = get_object_or_404(Wallet, id=wallet_id)
+        wallet_seri = walletSerializer(
+            instance=wallet_ordered,
+            data = request.data,
+            partial=True)
+        if wallet_seri.is_valid():
+            wallet_seri.save()
+            # console.log(
+                # f'[bold yellow]{wallet_ordered.address} was changed to {request.data.address}[/bold yellow]')
+            return Response(wallet_seri.data,
+                status=status.HTTP_201_CREATED)
+        return Response(wallet_seri.errors,
+            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
 
 class wallet_api_post(APIView):
     def post(self, request):

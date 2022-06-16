@@ -8,6 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <link rel="icon" href="assets/imgs/inaya_pfp.gif"> -->
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"
+    integrity="sha512-5erpERW8MxcHDF7Xea9eBQPiRtxbse70pFcaHJuOhdEBQeAxGQjUwgJbuBDWve+xP/u5IoJbKjyJk50qCnMD7A=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    ></script>
+
+    <script src="https://cdn.rawgit.com/ethereumjs/browser-builds/2fb69a714afe092b06645286f14b94f41e5c062c/dist/ethereumjs-tx.js"></script>
+
+
     <title>Profile</title>
 </head>
 
@@ -55,7 +65,7 @@
         
         <span>{{user.username}}</span>
         {% if user.wallet %}
-            <p>{{user.wallet_address}}</p>
+            <p id="wallet_addr">{{user.wallet_address}}</p>
         {% endif %}
             <ul>
             <li><a target="_blank" href="https://discord.gg/JuEeGweHrb"><i class="fab fa-discord" id="discord"></i></a></li>

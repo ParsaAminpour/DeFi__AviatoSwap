@@ -27,13 +27,15 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('The email is invalid')
         return value
 
+
+
 class walletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = ('address','balance','is_zero_address')
 
     def validate(self, data):
-        if len(data.get('address')) != 42:
+        if len(data.get('address')) > 43:
             raise serializers.ValidationError('The wallet address is invalid')
         return data
 

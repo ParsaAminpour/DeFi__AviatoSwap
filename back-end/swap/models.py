@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 class Wallet(models.Model):
     address = models.CharField(max_length=42, unique=True)
-    balance = models.FloatField(default=0)
+    balance = models.FloatField(default=0, null=True, blank=True)
     is_zero_address = models.BooleanField()
     
     def __str__(self):

@@ -9,8 +9,14 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes, DjangoUnicodeDecodeError, force_str # as force_text in Django v4.0
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
+from .utils import gen_token
+from django.contrib.auth import get_user_model
 
 from django.utils.translation import gettext as _
 from .serializers import UserSerializer, walletSerializer
@@ -19,9 +25,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 import django.contrib.auth.models as django_auth_models
 from rest_framework.views import APIView
 from django.core.mail import EmailMessage
-from django.contrib import messages
 from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .forms import SignUp, login_form, UploadProfilePic, EditProfileForm
@@ -37,7 +41,6 @@ from datetime import datetime as dt
 from random import randint
 from hashlib import sha256
 from requests.auth import HTTPBasicAuth
-from django.conf import settings
 from asgiref.sync import sync_to_async, async_to_sync
 import numpy as np
 import asyncio, aiofiles
@@ -103,9 +106,8 @@ def Profile(request):
         return render(request, 'profile.html', {'error' : file_inserted.errors})
 
             
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+
+@require_http_methods(['GET','POST'])
 @csrf_exempt
 def Signup(request):
     if request.method == 'GET':
@@ -119,28 +121,51 @@ def Signup(request):
             password = form.cleaned_data.get('password')
             user = form.save(commit=False)
             user.is_active = False
-            user.save()
+            # user.save()
 
-            code = urlsafe_base64_encode(
-                force_bytes(randint(100000,999999)))
+            current_site = get_current_site(request)
 
-            email = EmailMessage('Email Verification Code ',
-            render_to_string('email_template.html', {
-                'user' : username,
-                'code' : urlsafe_base64_decode(code).decode('utf-8')
-                }), 
-            settings.EMAIL_HOST_USER, 
-            form.cleaned_data.get('email'))
+            email_message = EmailMessage(
+                'Registration Validation',
+                render_to_string('email_template.html', {
+                        'user' : user,
+                        'domain' : current_site.domain,
+                        'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
+                        'token' : gen_token.make_token(user)    
+                    }),
+                settings.EMAIL_HOST_USER,
+                [form.cleaned_data.get('email')])
+            email_message.send()
 
-            
+            messages.add_message(request, messages.SUCCESS, 'account created successfuly')
 
-            new_user = authenticate(username=username, password=password)
-            if new_user is not None:
-                login(request, new_user)
-            console.log(f'{username} was added')
-            return redirect('/login/')
         return render(request, 'error.html', {'error' : form.errors})
 
+
+class ActivateView(View):
+    def get(self, request, uidb64, token):
+        User = get_user_model()
+        try:
+            uid_decoded = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid_decoded)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and gen_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+
+            # new_user = authenticate(username=username, password=password)
+            # if new_user is not None:
+            #     login(request, new_user)
+
+            console.log(f'[bold green]{user.username} was added[/bold green]')
+            messages.add_message(request, messages.INFO, f'{user.username} registered')
+            return redirect('login')
+
+        msg = f'[bold red]An error occured in {self.__class__.__name__}[/bold red]'
+        console.log(f'[bold red]{msg}[/bold red]')
+        return render(request, 'error.html', {'error' : msg}, status=401)
 
 
 @csrf_exempt

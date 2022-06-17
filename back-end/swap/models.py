@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.conf import settings
 
 class Wallet(models.Model):
     address = models.CharField(max_length=42, unique=True)
@@ -15,7 +15,7 @@ class User(AbstractUser):
     wallet = models.OneToOneField(Wallet, on_delete=models.CASCADE, null=True, blank=True)
     ip_address = models.CharField(max_length=12, null=True, blank=True)
     user_agent = models.CharField(max_length=256, null=True, blank=True)
-    profile_pic = models.FileField(null=True, blank=True, upload_to='static/images')
+    profile_pic = models.FileField(null=True, blank=True, upload_to='../media/static/images')
     about = models.TextField(max_length=256, null=True, blank=True)
 
     @property

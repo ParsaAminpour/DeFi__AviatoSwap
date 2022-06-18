@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Permission
 from django.conf import settings
 
 class Wallet(models.Model):
@@ -15,8 +15,14 @@ class User(AbstractUser):
     wallet = models.OneToOneField(Wallet, on_delete=models.CASCADE, null=True, blank=True)
     ip_address = models.CharField(max_length=12, null=True, blank=True)
     user_agent = models.CharField(max_length=256, null=True, blank=True)
-    profile_pic = models.FileField(null=True, blank=True, upload_to='../media/static/images')
+    # blocked_user = models.BooleanField(default=False, null=True, blank=True)
+    profile_pic = models.ImageField(null=True, blank=True)
     about = models.TextField(max_length=256, null=True, blank=True)
+
+    # class Meta:
+    #     permissions = [
+
+    #     ]
 
     @property
     def wallet_address(self):
@@ -31,6 +37,7 @@ class User(AbstractUser):
             return '/static/images/unknown.jpg'
         else:
             return self.profile_pic
+
 
     def __str__(self):
         return self.username

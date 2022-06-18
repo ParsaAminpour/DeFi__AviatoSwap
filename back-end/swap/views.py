@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
+from django.views.generic.detail import SingleObjectMixin
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_bytes, DjangoUnicodeDecodeError, force_str # as force_text in Django v4.0
@@ -17,6 +18,15 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 from .utils import gen_token
 from django.contrib.auth import get_user_model
+from django.http.response import HttpResponseForbidden
+
+from django.urls import reverse
+from django.shortcuts import reverse as rev
+
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth import models
+from django.contrib.auth.models import User, Group, Permission
 
 from django.utils.translation import gettext as _
 from .serializers import UserSerializer, walletSerializer
@@ -45,11 +55,14 @@ from asgiref.sync import sync_to_async, async_to_sync
 import numpy as np
 import asyncio, aiofiles
 from rich.console import Console
+import stripe #for payment
+strip_api_key = settings.STRIPE_API_KEY
+
 console = Console()
 
 
 class Home(View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         if request.user.is_anonymous:
             redirect('/login/')
         return render(request, 'home.html')
@@ -68,8 +81,25 @@ async def file_handler(file):
     else: return False
 
 
+class CustomePermission(PermissionRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect_to_login(self.request.get_full_path(),
+                self.request.get_login_url(), self.get_redirect_field_name())
 
-class EditProfile(UpdateView):
+        if not self.has_permission():
+            return HttpResponseForbidden(
+                '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>')
+        
+        return super(CustomePermission, self).dispatch(request, *args, **kwargs)
+
+
+class EditProfile(CustomePermission, UpdateView):
+    permission_denied_message = 'msg'
+    login_url='/login/'
+    redirect_field_name = 'next'
+    reaise_exception = True
+    permission_required = ('user.change_user', )
     model = User
     form_class = EditProfileForm
     template_name = 'user_update.html'
@@ -79,14 +109,22 @@ class EditProfile(UpdateView):
         return get_object_or_404(self.model, pk=self.request.user.id)
 
     def post(self, request, *args, **kwargs):
+        user = request.user
+        file = request.FILES.get('profile_pic')
+        if file is not None:
+            user.profile_pic = file
+            user.save()
+        # messages.SUCCESS(request, 'profile has been changed')
         return super().post(request, *args, **kwargs)
-
 
 
 @csrf_exempt
 @login_required(login_url='/login/')    
 def Profile(request):
     if request.method == 'GET':
+        if login in get_current_site(request).domain.split('/'):
+            redirect('profile')
+
         form = UploadProfilePic()
         return render(request, 'profile.html' , {'form' : form})
     
@@ -132,7 +170,7 @@ def Signup(request):
                         'domain' : current_site.domain,
                         'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
                         'token' : gen_token.make_token(user)    
-                    }),
+                    }), 
                 settings.EMAIL_HOST_USER,
                 [form.cleaned_data.get('email')])
             email_message.send()
@@ -140,6 +178,7 @@ def Signup(request):
             messages.add_message(request, messages.SUCCESS, 'account created successfuly')
 
         return render(request, 'error.html', {'error' : form.errors})
+
 
 
 class ActivateView(View):
@@ -154,10 +193,6 @@ class ActivateView(View):
         if user is not None and gen_token.check_token(user, token):
             user.is_active = True
             user.save()
-
-            # new_user = authenticate(username=username, password=password)
-            # if new_user is not None:
-            #     login(request, new_user)
 
             console.log(f'[bold green]{user.username} was added[/bold green]')
             messages.add_message(request, messages.INFO, f'{user.username} registered')
@@ -177,6 +212,11 @@ def Login(request):
     if request.method == 'POST':
         form = login_form(request.POST)
         if form.is_valid():
+            _ = User.objects.get(username=form.cleaned_data.get('username'))
+            if not _.is_active:
+                return HttpResponseForbidden(
+                f'<center><h1><i>Firstoff please activate your accuont via email verification link</i></h1></center>')
+
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             result = authenticate(username=username, password=password)
@@ -206,6 +246,15 @@ class Donation(View):
     def get(self, request):
         return render(request, 'donation.html', {})
 
+class Chatroom(View):
+    def get(self, request):
+        pass
+
+    def post(self, request, msg_id):
+        pass
+
+    def delete(self, request, msg_id):
+        pass
 
 ### Serializers view ###
 class AddUserApiView(APIView):

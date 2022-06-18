@@ -57,7 +57,7 @@
 
     <section class="main">
         {% if user.profile_pic %}
-            <img src="{{user.get_profile_pic.url}}" alt="" srcset="">
+            <img src="{{user.profile_pic.url}}" alt="" srcset="">
         {% else %}
           <img src="{% static 'images/unknown.jpg' %}" alt="">
         {% endif %}

@@ -119,11 +119,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-
-STATIC_URL = '/static/'
-
-
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [
@@ -137,10 +132,12 @@ REST_FRAMEWORK = {
 }
 
 LOGOUT_REDIRECT_URL='/home/'
+LOGIN_REDIRECT_URL = '/profile/'
 
-MEDIA_URL = '/media/'  
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"  
 
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+STATIC_URL = 'static/'
 
 #SMTP-configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -149,3 +146,5 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')

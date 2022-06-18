@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/wallet/add/', wallet_api_post.as_view()),
     path('profile/edit/', EditProfile.as_view()),
     path('register/activate/<uidb64>/<token>/', ActivateView.as_view(), name='activate')
-]
+] + static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

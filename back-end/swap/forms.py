@@ -67,7 +67,8 @@ class login_form(forms.Form):
 
 
 class UploadProfilePic(forms.Form):
-    picture = forms.ImageField(widget=forms.FileInput(
+    picture = forms.ImageField(label='image', 
+        widget=forms.ClearableFileInput(
         attrs={
             'id' : 'upload', 'name' : 'upload', 'type' : 'file'
         }
@@ -87,6 +88,7 @@ class UploadProfilePic(forms.Form):
 
 
 class EditProfileForm(forms.ModelForm):
+    profile_pic = forms.ImageField(label='image')
     class Meta:
         model = User
         fields = ('username','about', 'email', 'profile_pic')
@@ -104,8 +106,9 @@ class EditProfileForm(forms.ModelForm):
                 'class' : 'email-edit' , 'placeholder' : 'New email',
                 'required' : False
             }),
-            'profile_pic' : forms.FileInput(attrs={
+            'profile_pic' : forms.ClearableFileInput(attrs={
                 'class' : 'pic-edit' , 'placeholder' : 'New pic',
+                'style' : 'border:2px solid red',
                 'required' : False
             })
         }

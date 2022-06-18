@@ -6,10 +6,11 @@ class IncludesBlackList:
         self.get_response = get_response
     
     def __call__(self, request):
-        if request.user.blocked_user is None or\
-            request.user.blocked_user:
-            return HttpResponseForbidden('This user have blocked for security matter')
-        
+        if not request.user.is_anonymous:
+            if request.user.blocked_user is not None or\
+                request.user.blocked_user:
+                return HttpResponseForbidden('This user has been blocked for security matter')
+            
         response = self.get_response(request)
         return response
 

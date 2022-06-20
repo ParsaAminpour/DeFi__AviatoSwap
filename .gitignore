@@ -2,7 +2,7 @@ node_modules
 guide.txt
 modules.py
 analysis.ipynb
-
+yncdb
 
 # Created by https://www.gitignore.io/api/django
 # Edit at https://www.gitignore.io/?templates=django

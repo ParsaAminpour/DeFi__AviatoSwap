@@ -51,13 +51,16 @@ from datetime import datetime as dt
 from random import randint
 from hashlib import sha256
 from requests.auth import HTTPBasicAuth
+from requests.exceptions import ConnectionError, Timeout, TooManyRedirects 
+
 from asgiref.sync import sync_to_async, async_to_sync
+import asyncio, aiofiles, aiohttp # tsak:finding its exception handler of aiohttp
+import requests
 import numpy as np
-import asyncio, aiofiles
 from rich.console import Console
 import stripe #for payment
-strip_api_key = settings.STRIPE_API_KEY
 
+strip_api_key = settings.STRIPE_API_KEY
 console = Console()
 
 
@@ -67,9 +70,10 @@ class Home(View):
             redirect('/login/')
         return render(request, 'home.html')
 
+
 @async_to_sync
 async def file_handler(file):
-    async with aiofiles(f'{Path.cwd()}/swap/static/profiles{file.name}',\
+    async with aiofiles(f'{settings.BASE_DIR}/media',\
         'wb+') as des:
         for chunk in file.chunks():
             await des.write(chunk) 
@@ -81,11 +85,33 @@ async def file_handler(file):
     else: return False
 
 
+# for working with APIs
+async def fetching(session, url:str):
+    try:
+        async with session.get(url) as response:
+            assert response.status == 200
+            data = response.jsno()
+            return data
+    except Exception as err:
+        return response.reason
+
+
+@async_to_sync
+async def get_api(url:str):
+    actions = []
+    async with aiohttp.ClientSession() as session:
+        actions.append(
+            asyncio.ensure_future(fetching(session, url)))
+
+    result = [*asyncio.gather(*actions)]
+    return result
+
+
 class CustomePermission(PermissionRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect_to_login(self.request.get_full_path(),
-                self.request.get_login_url(), self.get_redirect_field_name())
+                self.get_login_url(), self.get_redirect_field_name())
 
         if not self.has_permission():
             return HttpResponseForbidden(
@@ -143,7 +169,8 @@ def Profile(request):
                     request, 'profile.html', {'error', 'Something went wrong'})
         return render(request, 'profile.html', {'error' : file_inserted.errors})
 
-            
+# api security 
+
 
 @require_http_methods(['GET','POST'])
 @csrf_exempt
@@ -178,7 +205,6 @@ def Signup(request):
             messages.add_message(request, messages.SUCCESS, 'account created successfuly')
 
         return render(request, 'error.html', {'error' : form.errors})
-
 
 
 class ActivateView(View):

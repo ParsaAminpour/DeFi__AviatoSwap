@@ -19,11 +19,6 @@ class User(AbstractUser):
     profile_pic = models.ImageField(null=True, blank=True)
     about = models.TextField(max_length=256, null=True, blank=True)
 
-    # class Meta:
-    #     permissions = [
-
-    #     ]
-
     @property
     def wallet_address(self):
         if self.wallet.address is not None:

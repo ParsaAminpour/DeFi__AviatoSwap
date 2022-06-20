@@ -114,18 +114,17 @@ class CustomePermission(PermissionRequiredMixin):
                 self.get_login_url(), self.get_redirect_field_name())
 
         if not self.has_permission():
-            return HttpResponseForbidden(
-                '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>')
+            return HttpResponseForbidden(self.permission_denied_message)
         
         return super(CustomePermission, self).dispatch(request, *args, **kwargs)
 
 
 class EditProfile(CustomePermission, UpdateView):
-    permission_denied_message = 'msg'
+    permission_denied_message = '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>'
     login_url='/login/'
     redirect_field_name = 'next'
     reaise_exception = True
-    permission_required = ('user.change_user', )
+    permission_required = 'user.change_user'
     model = User
     form_class = EditProfileForm
     template_name = 'user_update.html'
@@ -148,11 +147,11 @@ class EditProfile(CustomePermission, UpdateView):
 @login_required(login_url='/login/')    
 def Profile(request):
     if request.method == 'GET':
-        if login in get_current_site(request).domain.split('/'):
+        if 'login' in list(get_current_site(request).domain.split('/')):
             redirect('profile')
 
         form = UploadProfilePic()
-        return render(request, 'profile.html' , {'form' : form})
+        return render(request, 'profile.html' , {'user' : request.user})
     
     if request.method == 'POST':
         file_inserted = UploadProfilePic(
@@ -182,29 +181,14 @@ def Signup(request):
     if request.method == 'POST':
         form = SignUp(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
             user = form.save(commit=False)
-            user.is_active = False
-            # user.save()
+            user.save()
+            authenticate(username=user.username, password=user.password)
 
-            current_site = get_current_site(request)
-
-            email_message = EmailMessage(
-                'Registration Validation',
-                render_to_string('email_template.html', {
-                        'user' : user,
-                        'domain' : current_site.domain,
-                        'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
-                        'token' : gen_token.make_token(user)    
-                    }), 
-                settings.EMAIL_HOST_USER,
-                [form.cleaned_data.get('email')])
-            email_message.send()
-
-            messages.add_message(request, messages.SUCCESS, 'account created successfuly')
-
+            return redirect('login')
+            # return render(request, 'profile.html', {'user':user})
         return render(request, 'error.html', {'error' : form.errors})
+
 
 
 class ActivateView(View):
@@ -249,7 +233,7 @@ def Login(request):
             if result is not None:
                 login(request, result)
                 console.log(f'[bold green]{username} was logged in[/bold green]')
-                return render(request, 'profile.html', {'user' : request.user})
+                return render(request, 'home.html', {})
             
             console.log('[bold red]authentication failed[/bold red]')
             return redirect('/login/')

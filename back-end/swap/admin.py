@@ -20,23 +20,26 @@ class UserAdmin(UserAdmin):
 
 class UserPermissionMixin:
     def has_view_permission(self, request, obj=None):
-        return False if request.user.is_anonymous else True
+        # return False if request.user.is_anonymous else True
+        return True
 
     def has_add_permission(self, request, obj=None):
-        if not request.user.is_superuser or not request.user.is_staff:
-            return False
-        else: return True
+        # if not request.user.is_superuser or not request.user.is_staff:
+        #     return False
+        # else: return True
+        return True
 
     def has_change_permission(self, request, obj=None):
-        if not request.user.is_superuser:
-            return False
-        else: return True        
+        # if not request.user.is_superuser:
+        #     return False
+        # else: return True        
+        True
 
     def has_delete_permission(self, request, obj=None):
-        if not request.user.is_superuser:
-            return False
-        else: return True        
-
+        # if not request.user.is_superuser:
+        #     return False
+        # else: return True        
+        return True
 
 
 @admin.register(Wallet)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission
 from django.conf import settings
+from django.core.validators import RegexValidator
 
 class Wallet(models.Model):
     address = models.CharField(max_length=42, unique=True)
@@ -18,6 +19,8 @@ class User(AbstractUser):
     # blocked_user = models.BooleanField(default=False, null=True, blank=True)
     profile_pic = models.ImageField(null=True, blank=True)
     about = models.TextField(max_length=256, null=True, blank=True)
+    email = models.CharField(max_length=256, 
+        validators = [RegexValidator(r'^[a-z]+(?:(?:\.[a-z]+)+\d*|(?:_[a-z]+)+(?:\.\d+)?)?@(?!.*\.\.)[^\W_][a-z\d.]+[a-z\d]{2}$', message='The email is invalid')])
 
     @property
     def wallet_address(self):

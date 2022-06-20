@@ -1,3 +1,4 @@
+from django.urls import re_path
 from os import stat
 from django.urls import path
 from .views import Home, Signup, Profile, Swap, Info, Login, AddUserApiView,\
@@ -21,7 +22,7 @@ urlpatterns = [
     path('api/', obtain_auth_token),
     path('api/wallet/<int:wallet_id>/', wallet_api_get.as_view()),
     path('api/wallet/add/', wallet_api_post.as_view()),
-    path('profile/edit/', EditProfile.as_view()),
+    path('profile/edit/', EditProfile.as_view(), name='edit'),
     path('register/activate/<uidb64>/<token>/', ActivateView.as_view(), name='activate')
 ] + static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

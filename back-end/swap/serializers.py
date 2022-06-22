@@ -48,3 +48,5 @@ class walletSerializer(serializers.ModelSerializer):
         if value[:-3] == 'EaD':
             raise serializers.ValidationError('The wallet address is invalid')
         return value
+
+

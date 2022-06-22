@@ -280,7 +280,14 @@ class AddUserApiView(APIView):
                         status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-
+#class MessagesApi(APIView):
+ #   permission_classes = ()
+  #  def get(self, request):
+  #      if request.user.is_staff:
+#         return Response(
+ #                   {'message' : 'This page is forbidden for you'},
+  #                  status=status.HTTP_403_FORBIDDEN)
+   # pass
 
 #sending data with requests module in python
 @api_view(['GET','PUT'])

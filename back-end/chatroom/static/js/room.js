@@ -5,7 +5,7 @@ let back = $.getElementById('back')
 
 
 window.addEventListener('load', () => {
-	const ws = new WebSocker(`ws://${window.location.host}/ws/chat/rooms/${room_id}`);
+	const ws = new WebSocket(`ws://${window.location.host}/ws/chat/rooms/${room_id}`);
 
 	ws.onopen = (e) => {
         Swal.fire({

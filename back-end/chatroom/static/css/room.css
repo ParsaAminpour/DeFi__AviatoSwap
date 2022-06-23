@@ -2,11 +2,13 @@
 	box-sizing:border-box;
 }
 body{
+	padding-left: 200px;
 	background-color:#abd9e9;
 	font-family:Arial;
+	margin-left: -150px;
 }
 #container{
-	width:1750px;
+	width:1180px;
 	height:800px;
 	background:#eff3f7;
 	margin:0 auto;
@@ -15,7 +17,7 @@ body{
 	overflow:hidden;
 }
 aside{
-	width:260px;
+	width:280px;
 	height:800px;
 	background-color:#3b3e49;
 	display:inline-block;
@@ -23,7 +25,7 @@ aside{
 	vertical-align:top;
 }
 main{
-	width:490px;
+	width:900px;
 	height:800px;
 	display:inline-block;
 	font-size:15px;
@@ -137,7 +139,7 @@ main header h3{
 }
 
 #chat{
-	padding-left:0;
+	padding-left:100px;
 	margin:0;
 	list-style-type:none;
 	overflow-y:scroll;
@@ -223,4 +225,19 @@ main footer a{
 	margin-left:333px;
 	margin-top:5px;
 	display:inline-block;
+}
+
+#back {
+	border : none;
+	background-color: transparent;
+	color: white;
+}
+
+.profile-pic {
+	height: 50px;
+	width:50px;
+}
+.profile-pic2 {
+	height: 50px;
+	width:50px;
 }

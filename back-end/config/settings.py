@@ -1,6 +1,7 @@
 from pathlib import Path
+# from dotenv import load_dotenv
 import os
-
+# load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -111,6 +112,7 @@ REST_FRAMEWORK = {
 
 LOGOUT_REDIRECT_URL='/home/'
 LOGIN_REDIRECT_URL = '/profile/'
+# FORCE_SCRIPT_NAME = '/home'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"  

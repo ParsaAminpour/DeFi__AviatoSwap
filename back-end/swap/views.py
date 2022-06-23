@@ -28,6 +28,10 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.auth import models
 from django.contrib.auth.models import User, Group, Permission
 
+from django.core.management.utils import get_random_secret_key
+from django.core.signing import TimestampSigner
+# from django.core.signing import BadSigning
+
 from django.utils.translation import gettext as _
 from .serializers import UserSerializer, walletSerializer
 from rest_framework.response import Response
@@ -81,13 +85,13 @@ async def file_handler(file):
     path = Path(
         f'{Path.cwd()}/swap/static/profiles/{file.name}'
     )
-    if  path.exists(): return True 
+    if  path.exists(): return True  
     else: return False
 
 
 # for working with APIs
 async def fetching(session, url:str):
-    try:
+    try:    
         async with session.get(url) as response:
             assert response.status == 200
             data = response.jsno()
@@ -129,6 +133,7 @@ class EditProfile(CustomePermission, UpdateView):
     form_class = EditProfileForm
     template_name = 'user_update.html'
     success_url = '/profile/'
+
 
     def get_object(self):
         return get_object_or_404(self.model, pk=self.request.user.id)

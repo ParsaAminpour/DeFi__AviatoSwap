@@ -1,84 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <link rel="stylesheet" href="{% static 'css/room.css' %}">
+    <title>{{room.name}}</title>
+</head>
+
+<body>
 <main>
+	<button id="back" onclick="backing()"><a href="http://127.0.0.1:8000/chat/rooms/" style="text-decoration:none; color: white;"> Back</a></button>
+
 		<header>
-			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/chat_avatar_01.jpg" alt="">
+				{% if room.pic %}
+					<img style="width:50px; height:50px" src="{{room.pic.url}}">
+				{% else %}
+					<img class="profile-pic" src="{% static 'images/unknown.jpg' %}">
+				{% endif %}
 			<div>
-				<h2>Chat with Vincent Porter</h2>
-				<h3>already 1902 messages</h3>
+				<h2>{{room.name}}</h2>
+				<h3>already {{room.msg_count}} messages</h3>
 			</div>
-			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_star.png" alt="">
+			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_star.png" alt="" style="margin-left: -140px; margin-top:-5px">
 		</header>
+
+
+
 		<ul id="chat">
-			<li class="you">
-				<div class="entete">
-					<span class="status green"></span>
-					<h2>Vincent</h2>
-					<h3>10:12AM, Today</h3>
-				</div>
-				<div class="triangle"></div>
-				<div class="message">
-					Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-				</div>
-			</li>
-			<li class="me">
-				<div class="entete">
-					<h3>10:12AM, Today</h3>
-					<h2>Vincent</h2>
-					<span class="status blue"></span>
-				</div>
-				<div class="triangle"></div>
-				<div class="message">
-					Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-				</div>
-			</li>
-			<li class="me">
-				<div class="entete">
-					<h3>10:12AM, Today</h3>
-					<h2>Vincent</h2>
-					<span class="status blue"></span>
-				</div>
-				<div class="triangle"></div>
-				<div class="message">
-					OK
-				</div>
-			</li>
-			<li class="you">
-				<div class="entete">
-					<span class="status green"></span>
-					<h2>Vincent</h2>
-					<h3>10:12AM, Today</h3>
-				</div>
-				<div class="triangle"></div>
-				<div class="message">
-					Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-				</div>
-			</li>
-			<li class="me">
-				<div class="entete">
-					<h3>10:12AM, Today</h3>
-					<h2>Vincent</h2>
-					<span class="status blue"></span>
-				</div>
-				<div class="triangle"></div>
-				<div class="message">
-					Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-				</div>
-			</li>
-			<li class="me">
-				<div class="entete">
-					<h3>10:12AM, Today</h3>
-					<h2>Vincent</h2>
-					<span class="status blue"></span>
-				</div>
-				<div class="triangle"></div>
-				<div class="message">
-					OK
-				</div>
-			</li>
+		{% for msg in messages %}
+
+			{% if msg.owner.username == request.user.username %}
+				<li class="me">
+					<div class="entete">
+						<span class="status green"></span>
+						<h2 id="owner">{{msg.owner}}</h2>
+						<h3 id='time'>fdvfd</h3>
+					</div>
+					<div class="triangle"></div>
+					<div class="message">
+						{{msg.message}}
+					</div>
+				</li>
+
+			{% else %}
+
+				<li class="you">
+					<div class="entete">
+						<h3 id="you_time"></h3>
+						<h2>{{msg.owner}}</h2>
+						<span class="status blue"></span>
+					</div>
+					<div class="triangle"></div>
+					<div class="message">
+						{{msg.message}}
+					</div>
+				</li>
+			{% endif %}
+
+		{% endfor %}
 		</ul>
+
+
+
 		<footer>
-			<textarea placeholder="Type your message"></textarea>
+			<textarea placeholder="Type your message" id="msg-area"></textarea>
+
 			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_picture.png" alt="">
+
 			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_file.png" alt="">
-			<a href="#">Send</a>
+
+			<a href="#" id="">Send</a>
 		</footer>
-	</main>
+</main>
+	{{room.name | json_script:'room_name'}}
+	{{room.id | json_script:'room_id'}}
+	<!-- {{messags | json_script:'messages'}} -->
+	<script src="{% static 'js/room.js' %}"></script>
+
+
+</body>	
+</html>

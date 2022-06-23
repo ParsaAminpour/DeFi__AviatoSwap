@@ -9,6 +9,7 @@ from django.conf import settings
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [ 
+    # path('', Home.as_view(), name='home'),
     path('home/', Home.as_view()),
     path('signup/', Signup, name='signup'),
     path('profile/', Profile, name='profile'),

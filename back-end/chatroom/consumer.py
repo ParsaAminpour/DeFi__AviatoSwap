@@ -1,7 +1,8 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async, async_to_sync
-import cryptography
+from cryptography.fernet import Fernet
 from .models import Room, Message
+from .crypto import Crypto
 import json
 
 
@@ -12,6 +13,7 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
 		self.room = None
 		self.message = None
 		self.user = None
+		self.crypto = Crypto()
 
 	@async_to_sync
 	async def connect(self):
@@ -55,6 +57,7 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
 			msg = Message.objects.create(message=message, owner=self.user)
 			self.room.add_message_to_room(msg)
 
+	#generating key for consumer section 
 
 	@async_to_sync
 	async def message_handler(self, event):

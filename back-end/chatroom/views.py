@@ -9,18 +9,36 @@ from rest_framework import status
 from .serializers import MessageSerialize
 
 class ChatList(View):
-	def get(self, request):
+	def get(self, request): 
 		rooms = Room.objects.all()
 		return render(request, 'index.html', {'rooms':rooms})
+
 
 class RoomView(View):
 	def get(self, request, room_id):
 		room = get_object_or_404(Room,  id=room_id)
+
+		if 'recently_view' not in request.session:
+			request.session['recently_view'] = [room_id]  
+
+		elif room_id in list(request.session.get('recently_view')):
+			request.session.get('recently_view').remove(room_id)
+			# re-adding to top of the list 
+			request.session['recently_view'].insert(0,room_id)
+
+		else:
+			request.session['recently_view'].insert(0, room_id)
+			
+		result = Room.objects.filter(
+			id__in=request.session.get('recently_view'))
+
 		context = {
 			'room' : room,
-			'messages' : room.message.all()
+			'messages' : room.message.all(),
+			'recently' : result
 		}
 		return render(request, 'room.html', context=context)
+
 
 class get_message_api(APIView):
 	def get(self, request, msg_id):
@@ -46,4 +64,3 @@ class add_message_api(APIView):
 				status=status.HTTP_201_CREATED)
 
 		return Response(msg_seri.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
-		 

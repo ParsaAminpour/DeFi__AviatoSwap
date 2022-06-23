@@ -1,11 +1,15 @@
 from pathlib import Path
-# from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+from decouple import config
 import os
-# load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-+88oli%_@tth@=o&nc%b3z$c768yp%o$dm-xod=dvvdzerlk03'
+# env_file = os.path.join(BASE_DIR, '.env')
+
+load_dotenv(find_dotenv())
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 

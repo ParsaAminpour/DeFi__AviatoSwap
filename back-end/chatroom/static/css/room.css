@@ -241,3 +241,7 @@ main footer a{
 	height: 50px;
 	width:50px;
 }
+
+.recent {
+	float: right;
+}

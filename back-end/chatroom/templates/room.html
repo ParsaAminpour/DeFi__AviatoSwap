@@ -39,7 +39,7 @@
 						<h2 id="owner">{{msg.owner}}</h2>
 						<h3 id='time'>fdvfd</h3>
 					</div>
-					<div class="triangle"></div>
+					<!-- <div class="triangle"></div> -->
 					<div class="message">
 						{{msg.message}}
 					</div>
@@ -65,6 +65,7 @@
 
 
 
+
 		<footer>
 			<textarea placeholder="Type your message" id="msg-area"></textarea>
 
@@ -75,6 +76,17 @@
 			<a href="#" id="">Send</a>
 		</footer>
 </main>
+	
+		<!-- <h2><del>Recently chat meeted</del></h2> -->
+			<ul style="float: right; margin-right:50px;">
+				<li style="text-decoration:none"> Recently chat meeted </li><br>
+				{% for item in recently %}
+					<li>{{item.name}}</li>
+				{% endfor %}
+
+			</ul>
+	
+
 	{{room.name | json_script:'room_name'}}
 	{{room.id | json_script:'room_id'}}
 	<!-- {{messags | json_script:'messages'}} -->

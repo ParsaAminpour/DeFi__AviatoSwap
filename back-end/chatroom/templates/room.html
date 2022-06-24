@@ -12,7 +12,7 @@
 
 <body>
 <main>
-	<button id="back" onclick="backing()"><a href="http://127.0.0.1:8000/chat/rooms/" style="text-decoration:none; color: white;"> Back</a></button>
+	<button id="back" onclick="backing()">Back</button>
 
 		<header>
 				{% if room.pic %}
@@ -73,7 +73,7 @@
 
 			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_file.png" alt="">
 
-			<a href="#" id="">Send</a>
+			<a id="sending">Send</a>
 		</footer>
 </main>
 	
@@ -89,9 +89,50 @@
 
 	{{room.name | json_script:'room_name'}}
 	{{room.id | json_script:'room_id'}}
-	<!-- {{messags | json_script:'messages'}} -->
-	<script src="{% static 'js/room.js' %}"></script>
+	{{request.user.username | json_script:'username'}}
 
+<!-- <script src="{% static 'js/room.js' %}"></script> -->
+<script type="text/javascript">
+	let back_btn = document.getElementById('back')
+	let send = document.getElementById('sending')
+	let txt_area = document.getElementById('msg_area')
+	const room_name = document.getElementById('room_name')
+	const username = document.getElementById('username')
+	const add_url = "http://127.0.0.1:8000/api/message/add/"
+	const get_url = "http://127.0.0.1:8000/api/"
+
+	back_btn.addEventListener('click', () => {
+		history.back()
+	})
+
+	const ws = new WebSocket(`ws://${window.location.host}/chat/${room_name}`)	
+
+	send.addEventListener('click', (e) => {
+		if(txt_area.value != '') {
+			ws.send(JSON.stringify({
+				'message' : 'txt_area.value',
+				'username' : username
+			}))
+			txt_area.value = ''
+
+		} else {
+			alert('please filling out the message box')
+		}
+	})
+
+	we.onmessage = async(e) => {
+		await data = JSON.parse(e.data)
+		await message = data['message']
+		await username = data['username']
+
+		await response = fetch('')
+	}
+
+
+
+
+
+</script>
 
 </body>	
 </html>

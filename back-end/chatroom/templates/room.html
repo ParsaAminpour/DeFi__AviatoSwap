@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <link rel="stylesheet" href="{% static 'css/room.css' %}">
+    <title>{{room.name}}</title>
+</head>
+
+<body>
+<main>
+	<button id="back" onclick="backing()">Back</button>
+
+		<header>
+				{% if room.pic %}
+					<img style="width:50px; height:50px" src="{{room.pic.url}}">
+				{% else %}
+					<img class="profile-pic" src="{% static 'images/unknown.jpg' %}">
+				{% endif %}
+			<div>
+				<h2>{{room.name}}</h2>
+				<h3>already {{room.msg_count}} messages</h3>
+			</div>
+			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_star.png" alt="" style="margin-left: -140px; margin-top:-5px">
+		</header>
+
+
+
+		<ul id="chat">
+		{% for msg in messages %}
+
+			{% if msg.owner.username == request.user.username %}
+				<li class="me">
+					<div class="entete">
+						<span class="status green"></span>
+						<h2 id="owner">{{msg.owner}}</h2>
+						<h3 id='time'>fdvfd</h3>
+					</div>
+					<!-- <div class="triangle"></div> -->
+					<div class="message">
+						{{msg.message}}
+					</div>
+				</li>
+
+			{% else %}
+
+				<li class="you">
+					<div class="entete">
+						<h3 id="you_time"></h3>
+						<h2>{{msg.owner}}</h2>
+						<span class="status blue"></span>
+					</div>
+					<div class="triangle"></div>
+					<div class="message">
+						{{msg.message}}
+					</div>
+				</li>
+			{% endif %}
+
+		{% endfor %}
+		</ul>
+
+
+
+
+		<footer>
+			<textarea placeholder="Type your message" id="msg-area"></textarea>
+
+			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_picture.png" alt="">
+
+			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_file.png" alt="">
+
+			<a id="sending">Send</a>
+		</footer>
+</main>
+	
+		<!-- <h2><del>Recently chat meeted</del></h2> -->
+			<ul style="float: right; margin-right:50px;">
+				<li style="text-decoration:none"> Recently chat meeted </li><br>
+				{% for item in recently %}
+					<li>{{item.name}}</li>
+				{% endfor %}
+
+			</ul>
+	
+
+	{{room.name | json_script:'room_name'}}
+	{{room.id | json_script:'room_id'}}
+	{{request.user.username | json_script:'username'}}
+
+<!-- <script src="{% static 'js/room.js' %}"></script> -->
+<script type="text/javascript">
+	let back_btn = document.getElementById('back')
+	let send = document.getElementById('sending')
+	let txt_area = document.getElementById('msg_area')
+	const room_name = document.getElementById('room_name')
+	const username = document.getElementById('username')
+	const add_url = "http://127.0.0.1:8000/api/message/add/"
+	const get_url = "http://127.0.0.1:8000/api/"
+
+	back_btn.addEventListener('click', () => {
+		history.back()
+	})
+
+	const ws = new WebSocket(`ws://${window.location.host}/chat/${room_name}`)	
+
+	send.addEventListener('click', (e) => {
+		if(txt_area.value != '') {
+			ws.send(JSON.stringify({
+				'message' : 'txt_area.value',
+				'username' : username
+			}))
+			txt_area.value = ''
+
+		} else {
+			alert('please filling out the message box')
+		}
+	})
+
+	we.onmessage = async(e) => {
+		await data = JSON.parse(e.data)
+		await message = data['message']
+		await username = data['username']
+
+		await response = fetch('')
+	}
+
+
+
+
+
+</script>
+
+</body>	
+</html>

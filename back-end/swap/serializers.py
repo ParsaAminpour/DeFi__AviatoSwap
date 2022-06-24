@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username',' email', 'password1', 'password2')
 
-    def validate(self, data):                                                                                                                                                                                                                           
+    def validate(self, data):
         if data.get('password1') != data.get('password2'):
             raise serializers.ValidationError('passwords are NOT same')
         return data
@@ -48,3 +48,5 @@ class walletSerializer(serializers.ModelSerializer):
         if value[:-3] == 'EaD':
             raise serializers.ValidationError('The wallet address is invalid')
         return value
+
+

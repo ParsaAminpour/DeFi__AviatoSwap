@@ -94,7 +94,7 @@ async def fetching(session, url:str):
     try:    
         async with session.get(url) as response:
             assert response.status == 200
-            data = response.jsno()
+            data = response.json()
             return data
     except Exception as err:
         return response.reason

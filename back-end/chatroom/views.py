@@ -7,11 +7,50 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import MessageSerialize
+from django.contrib.auth.decorators import login_required
+from rich import print, pretty
+from django.conf import settings
+import os, json
+import aiohttp, asyncio
+from asgiref.sync import sync_to_async, async_to_sync
+import tweepy
+
 
 class ChatList(View):
-	def get(self, request): 
-		rooms = Room.objects.all()
-		return render(request, 'index.html', {'rooms':rooms})
+	permission_classes = (login_required,)
+	def get(self, request):
+		API_KEY = settings.API_KEY
+		API_SECRET_KEY = settings.API_SECRET_KEY
+		BEARER = settings.BEARER
+		ACCESS_TOKEN = settings.ACCESS_TOKEN
+		ACCESS_TOKEN_SECRET = settings.ACCESS_SECRET_TOKEN
+
+		client = tweepy.Client(bearer_token = BEARER)
+
+		q ="#BTC OR #ETH"
+		response2 = client.search_recent_tweets(query=q, user_fields=['profile_image_url', 'username'], 
+			expansions=["author_id","referenced_tweets.id"], max_results=10)
+
+		result = {data.author_id : data.text.strip() for data in response2.data}
+		users = [client.get_user(id=key) for key in list(result)]
+
+		tweet_ids = [data.referenced_tweets for data in response2.data]
+
+		usernames = [user.data.username for user in users]
+		tweets = list(result.values())
+
+		urls = []
+		for username, id_ in zip(usernames, tweet_ids):
+			urls.append(
+				f"https://twitter.com/{username}/status/{id_}")
+
+		main_result = zip(usernames,tweets,urls)
+		rooms = Room.objects.all()	
+
+		ctx = {'rooms' : rooms, 'tweets' : main_result}
+		return render(request,'index.html', context=ctx)
+
+
 
 
 class RoomView(View):

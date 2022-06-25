@@ -1,17 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="{% static 'css/index.scss' %}">
-    <title>Rooms</title>
-
-
-
-
-<style>
 .timeline {
   position: relative;
   padding:4px 0 0 0;
@@ -267,115 +253,166 @@ padding:0;
 }
 }
 
-#chat_link {
-	text-decoration: none;
-	/* color: black; */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.main-timeline{ font-family: 'Josefin Sans', sans-serif; }
+.main-timeline:after{
+    content: '';
+    display: block;
+    clear: both;
 }
-</style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</head>
-<body>
-<body>
-
-
-
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<!------ Include the above in your HEAD tag ---------->
-	
-	<div class="container">
-	  <div class="row">
-		<div class="col-lg-12">
-		  <h3 class="text-center">Welcome to chatroom of Aviato Swap</h3>
-		  <center><p>
-			People share here their experience and questions
-		  </p></center>
-
-
-		  <ul class="timeline">
-			{% for room in rooms %}
-			<li>
-			  <div class="timeline-image">
-				<a href="http://127.0.0.1:8000/chat/rooms/{{room.id}}" id="chat_link">
-				<img class="img-circle img-responsive" src="{{room.pic.url}}" alt="">
-				</a>
-			  </div>
-			  <div class="timeline-panel">
-				<div class="timeline-heading">
-				  <h4></h4>
-				  <h4 class="subheading">
-					<a href="http://127.0.0.1:8000/chat/rooms/{{room.id}}" id="chat_link">
-						{{room.name}}
-					</a></h4>
-				</div>
-				<div class="timeline-body">
-				  <p class="text-muted">
-					{{room.info}}
-				  </p>
-				</div>
-			  </div>
-			  <div class="line"></div>
-			</li>
-			{% endfor %}
-		  </ul>
-		</div>
-	  </div>
-	</div>
-<br><br><br><br><br><br><br><br>
-<hr>
-
-
-
-
-
-
-<div class="container">
-	<center><h1> Tweets </h1></center>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="main-timeline">
-
-                <div class="timeline">
-                    <!-- <a href="#" class="timeline-content"> -->
-
-                    	{% for user, tw, url in tweets %}
-          
-                        <div class="timeline-year"></div>
-                        <h3 class="title">{{user}}</h3>
-                        <p class="description">
-                        	<a href="{{url}}" style="text-decoration: none; color:black;">{{tw}}</a>
-                        </p>
-          				<br>
-                        {% endfor %}
-                        <div class="timeline-icon"><i class="fa fa-globe"></i></div>
-                    <!-- </a> -->
-                </div>
-        
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-</body>
-</html>
-
+.main-timeline .timeline{
+    width: 50%;
+    margin: 0 5px 0 0;
+    float: left;
+}
+.main-timeline .timeline-content{
+    color: #333;
+    padding: 30px 80px 30px 100px;
+    border-radius: 30px;
+    display: block;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+.main-timeline .timeline-content:hover{ text-decoration: none; }
+.main-timeline .timeline-content:before,
+.main-timeline .timeline-content:after{
+    content: '';
+    background-color: #6E13AE;
+    border-radius: 30px;
+    position: absolute;
+    top: 10px;
+    bottom: 0;
+    left: 70px;
+    right: 0;
+    z-index: -1;
+}
+.main-timeline .timeline-content:after{
+    background-color: rgba(255,255,255,0.8);
+    right: 55px;
+    left: 0;
+    top: 0;
+    bottom: 10px;
+}
+.main-timeline .timeline-year{
+    color: #fff;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 30px;
+    transform: translateY(-50%) rotate(-90deg);
+    position: absolute;
+    top: calc(50% + 5px);
+    right: -10px;
+    z-index: 1;
+}
+.main-timeline .timeline-icon{
+    font-size: 30px;
+    font-weight: 600;
+    transform: translateY(-50%);
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    z-index: 1;
+}
+.main-timeline .title{
+    color: #6E13AE;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0 0 3px;
+}
+.main-timeline .description{
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin: 0;
+}
+.main-timeline .timeline:nth-child(even){
+    float: right;
+    margin: 0 0 0 5px;
+}
+.main-timeline .timeline:nth-child(even) .timeline-content{ padding: 30px 100px 30px 80px; }
+.main-timeline .timeline:nth-child(even) .timeline-content:before{
+    left: 0;
+    right: 70px;
+}
+.main-timeline .timeline:nth-child(even) .timeline-content:after{
+    right: 0;
+    left: 55px;
+}
+.main-timeline .timeline:nth-child(even) .timeline-year{
+    right: auto;
+    left: 0;
+}
+.main-timeline .timeline:nth-child(even) .timeline-icon{
+    right: 20px;
+    left: auto;
+}
+.main-timeline .timeline:nth-child(4n+2) .timeline-content:before{ background-color: #FD5902; }
+.main-timeline .timeline:nth-child(4n+2) .title{ color: #FD5902; }
+.main-timeline .timeline:nth-child(4n+3) .timeline-content:before{ background-color: #4C63FF; }
+.main-timeline .timeline:nth-child(4n+3) .title{ color: #4C63FF; }
+.main-timeline .timeline:nth-child(4n+4) .timeline-content:before{ background-color: #F71D51; }
+.main-timeline .timeline:nth-child(4n+4) .title{ color: #F71D51; }
+@media screen and (max-width:767px){
+    .main-timeline .timeline,
+    .main-timeline .timeline:nth-child(even){
+        width: 100%;
+        margin: 0 0 20px 0;
+    }
+}
+@media screen and (max-width:479px){
+    .main-timeline .timeline .timeline-content,
+    .main-timeline .timeline:nth-child(even) .timeline-content{
+        padding: 70px 40px;
+    }
+    .main-timeline .timeline .timeline-content:before,
+    .main-timeline .timeline:nth-child(even) .timeline-content:after{
+        top: 50px;
+        bottom: 0;
+        left: 10px;
+    }
+    .main-timeline .timeline .timeline-content:after,
+    .main-timeline .timeline:nth-child(even) .timeline-content:before{
+        bottom: 50px;
+        top: 0;
+        right: 10px;
+    }
+    .main-timeline .timeline .timeline-year{
+        transform: translateY(0) rotate(0);
+        top: auto;
+        bottom: 7px;
+        right: 20px;
+    }
+    .main-timeline .timeline:nth-child(even) .timeline-year{
+        top: 12px;
+        left: 20px;
+    }
+    .main-timeline .timeline .timeline-icon{
+        transform: translateY(0);
+        top: 7px;
+        left: 30px;
+    }
+    .main-timeline .timeline:nth-child(even) .timeline-icon{
+        top: auto;
+        bottom: 1px;
+        right: 30px;
+    }
+}

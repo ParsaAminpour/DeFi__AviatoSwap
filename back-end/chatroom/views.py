@@ -29,8 +29,8 @@ class ChatList(LoginRequiredMixin, View):
 		client = tweepy.Client(bearer_token = BEARER)
 
 		q ="#BTC OR #ETH"
-		response2 = asyncio.gather(client.search_recent_tweets(query=q, user_fields=['profile_image_url', 'username'], 
-			expansions=["author_id","referenced_tweets.id"], max_results=10))
+		response2 = client.search_recent_tweets(query=q, user_fields=['profile_image_url', 'username'], 
+			expansions=["author_id","referenced_tweets.id"], max_results=10)
 
 		result = {data.author_id : data.text.strip() for data in response2.data}
 		users = [client.get_user(id=key) for key in list(result.keys())]

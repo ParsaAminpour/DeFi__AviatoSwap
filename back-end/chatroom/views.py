@@ -51,8 +51,6 @@ class ChatList(LoginRequiredMixin, View):
 		return render(request,'index.html', context=ctx)
 
 
-
-
 class RoomView(View):
 	def get(self, request, room_id):
 		room = get_object_or_404(Room,  id=room_id)

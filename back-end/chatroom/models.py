@@ -14,12 +14,12 @@ class Message(models.Model):
 class Room(models.Model):
 	name = models.CharField(max_length=256)
 	online = models.ManyToManyField(
-		User, related_name='online')
+		User, related_name='onlines')
 	info = models.TextField(max_length=256, null=True, blank=True)
-	message = models.ManyToManyField(Message)
+	message = models.ManyToManyField(Message, related_name='messages')
 	pic = models.ImageField(null=True, blank=True)
 
-	def onlines(self):
+	def onlines_count(self):
 		return self.online.count()
 
 	def msg_count(self):

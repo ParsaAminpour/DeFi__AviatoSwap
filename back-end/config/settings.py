@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_email_verification',
+    'graphene_django',
+    'guardian',
     'swap.apps.SwapConfig',
     'chatroom',
     'security',
@@ -146,3 +148,4 @@ API_SECRET_KEY = os.environ.get("API_SECRET_KEY")
 BEARER = os.environ.get("BEARER")
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 ACCESS_SECRET_TOKEN = os.environ.get("ACCESS_SECRET_TOKEN")
+

@@ -46,6 +46,7 @@ from .forms import SignUp, login_form, UploadProfilePic, EditProfileForm
 from django.views.generic.edit import UpdateView
 from django.views.generic import DetailView, FormView, CreateView, ListView
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, Profile, Wallet
@@ -58,7 +59,7 @@ from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects 
 
 from asgiref.sync import sync_to_async, async_to_sync
-import asyncio, aiofiles, aiohttp # tsak:finding its exception handler of aiohttp
+import asyncio, aiofiles, aiohttp # task:finding its exception handler of aiohttp
 import requests
 import numpy as np
 from rich.console import Console
@@ -94,10 +95,10 @@ async def fetching(session, url:str):
     try:    
         async with session.get(url) as response:
             assert response.status == 200
-            data = response.json()
+            data = await response.json()
             return data
     except Exception as err:
-        return response.reason
+        pass
 
 
 @async_to_sync
@@ -123,7 +124,7 @@ class CustomePermission(PermissionRequiredMixin):
         return super(CustomePermission, self).dispatch(request, *args, **kwargs)
 
 
-class EditProfile(CustomePermission, UpdateView):
+class EditProfile(LoginRequiredMixin, UpdateView):
     permission_denied_message = '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>'
     login_url='/login/'
     redirect_field_name = 'next'
@@ -285,16 +286,7 @@ class AddUserApiView(APIView):
                         status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-#class MessagesApi(APIView):
- #   permission_classes = ()
-  #  def get(self, request):
-  #      if request.user.is_staff:
-#         return Response(
- #                   {'message' : 'This page is forbidden for you'},
-  #                  status=status.HTTP_403_FORBIDDEN)
-   # pass
 
-#sending data with requests module in python
 @api_view(['GET','PUT'])
 def user_api_view(request, user_id):
     if request.method == 'GET':

@@ -6,8 +6,10 @@ from django.views.generic import ListView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from textblob import TextBlob
 from .serializers import MessageSerialize
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rich import print, pretty
 from django.conf import settings
 import os, json
@@ -16,8 +18,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 import tweepy
 
 
-class ChatList(View):
-	permission_classes = (login_required,)
+class ChatList(LoginRequiredMixin, View):
 	def get(self, request):
 		API_KEY = settings.API_KEY
 		API_SECRET_KEY = settings.API_SECRET_KEY
@@ -28,17 +29,16 @@ class ChatList(View):
 		client = tweepy.Client(bearer_token = BEARER)
 
 		q ="#BTC OR #ETH"
-		response2 = client.search_recent_tweets(query=q, user_fields=['profile_image_url', 'username'], 
-			expansions=["author_id","referenced_tweets.id"], max_results=10)
+		response2 = asyncio.gather(client.search_recent_tweets(query=q, user_fields=['profile_image_url', 'username'], 
+			expansions=["author_id","referenced_tweets.id"], max_results=10))
 
 		result = {data.author_id : data.text.strip() for data in response2.data}
-		users = [client.get_user(id=key) for key in list(result)]
-
-		tweet_ids = [data.referenced_tweets for data in response2.data]
-
+		users = [client.get_user(id=key) for key in list(result.keys())]
 		usernames = [user.data.username for user in users]
+		
 		tweets = list(result.values())
 
+		tweet_ids = [data.referenced_tweets for data in response2.data]
 		urls = []
 		for username, id_ in zip(usernames, tweet_ids):
 			urls.append(

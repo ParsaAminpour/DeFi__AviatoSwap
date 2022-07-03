@@ -7,7 +7,7 @@ beautifulsoup4==4.11.1
 Django==4.0.4
 djangorestframework==3.13.1
 matplotlib==3.5.1
-numpy==1.21.4
+numpy==1.22.0
 python-dotenv==0.20.0
 PyYAML==6.0
 requests==2.25.1

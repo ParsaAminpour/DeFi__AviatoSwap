@@ -8,17 +8,19 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <!--     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
 <!--     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" /> -->
-    <!-- <link rel="icon" href="{% static 'TuringLogo.jpg' %}"> -->
+    <link rel="icon" href="{% static 'img/swap.png' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <title>Home</title>
+
+
 </head>
 
 
 
-<body style='background-color: rgb(204, 202, 202);'>
+<body style='background-color: rgb(61, 57, 57); display: flex;justify-content: center; overflow: hidden;'>
     <div id="wallpaper">
         <img src="{% static 'img/signup.jfif' %}"
-            style="height: 867px; width: 1400px; z-index: -2; position:absolute; filter: blur(4px);">
+            style="position: fixed; top: 0; left: 0; min-width: 100%; min-height: 100%; filter: blur(5px);"> 
 
         <div id="title">
 
@@ -55,33 +57,28 @@
 
         </div>
 
-
-
-
-
         <div id="content">
-
             <div id="des1">
-                <h1 style="color: white; line-height: 70px; font-size: 60px; margin-left: 20px;">
+                <h1 style="color: white; line-height: 70px; font-size: 60px; margin-left: 0px; justify-content: left; overflow: hidden;">
                     Discover, Collect, and<br>
                     sell your own extraordinary<br>
                     code NFTs
                 </h1>
-                <article style="color: whitesmoke; font-style:normal; font-size:larger; line-height: 38px; margin-left: 35px;">
+                <article style="color: whitesmoke; font-style:normal; font-size:larger; line-height: 38px; margin-left: 10px;">
                     <h2> On the world's first <br>
                         Let's watch the codes from <br>
                         a new respensive
                     </h2>
                 </article>
 
-                <button id='start_solving'><a href="/swap/" style="text-decoration: none; color: black; font-size:18px"> Trading </a></button>
+                <button id='start_solving'><a href="/swap/" style="text-decoration: none; color: black; font-size:18px; margin-left: -10px;"> Trading </a></button>
 
-                <button id='start_solving'><a href="/donation/" style="text-decoration: none; color: black; font-size:18px"> Buy me a coffe </a></button>
+                <button id='start_solving'><a href="/donation/" style="text-decoration: none; color: black; font-size:18px; margin-left: -10px;"> Buy me a coffe </a></button>
             </div>
 
             <div id="image_content">
                 <img src="{% static 'img/cryptopunk2294.png' %}"
-                style="width: 510px; height: 480px; position: absolute; border-radius: 25px; filter: opacity(95%);">
+                style="width: 610px; height: 580px; position: absolute; border-radius: 25px; filter: opacity(95%); position: fixed; margin-left: 0px;">
             </div>
 
         </div>

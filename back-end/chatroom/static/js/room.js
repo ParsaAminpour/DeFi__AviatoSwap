@@ -1,47 +1,48 @@
-let $ = document
-let room_name = $.getElementById('room_name')
-let room_id = $.getElementById('room_id')
-let back = $.getElementById('back')
+// let msg_box = document.getElementById("text-message")
+let send_btn = document.getElementById("sending")
+let content = document.querySelector(".msg-area")
 
+let roomName = room_name
+let roomId = room_id
+let user_name = username
 
-window.addEventListener('load', () => {
-	const ws = new WebSocker(`ws://${window.location.host}/ws/chat/rooms/${room_id}`);
+let ws = null
 
-	ws.onopen = (e) => {
-        Swal.fire({
-            title: '<strong>Connection Stablished Successfuly </strong>',
-            html: '',
- 
-            showCloseButton: true,
-            focusConfirm: true,
-  
-            confirmButtonText: '<i class="fa fa-thumbs-up"></i> Great!',
-            confirmButtonAriaLabel: 'Thumbs up, great!',
-        })		
-	} 
-
-	ws.onclose = (e) => {
-        setTimeout(() => {
-        	Swal.fire({
-            	title: '<strong>Connection is failed, reconnecting in 10sec..</strong>',
-            	html: '',
-        	})
-        }, 10000)
-	}
-
-	ws.onmessage = async(e) => {
-		data = JSON.parse(e.data)
-		message = data['message']
-		username = data['username']
-
-		await switch(data.tye){
-			case 'message_handler':
-				console.log('Received')
-				break
-		}
-	}
-})
-
-function backing() {
-	return history.back()
+window.onload = () => {
+    console.log(roomName)
 }
+
+const connect = () => {
+    ws = new WebSocket(`ws//${window.location.host}/chart/room_${roomName}`)
+
+    ws.onopen = (e) => {
+        console.log("web socket opened successfully :)")
+    }
+
+    ws.onmessage = (e) => {
+        let data_msg = JSON.parse(e.data)
+        let message;
+        data_msg.type === "msg_handler" 
+            ? message = data.message
+            : console.log("invalid message sent")
+    }
+
+    ws.onclose = (e) => {
+        console.log("connecting...")
+        setTimeout(() => {
+            connect()
+        },10000)
+    }
+
+    ws.onerror = (e) => {
+        console.error(e)
+        ws.close()
+    }
+}
+
+connect.onclick = () => {
+    console.log("clicked")
+}
+// ws.send(JSON.stringify({
+//     'message' : msg_box.value 
+// }))

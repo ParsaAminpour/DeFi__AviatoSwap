@@ -1,7 +1,6 @@
 from graphene_django import DjangoObjectType
 from graphene_django import DjangoListField
 import graphene
-from js2py import require
 from .models import Message, Room
 from swap.models import User, Wallet
 from datetime import datetime as dt

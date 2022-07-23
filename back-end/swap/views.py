@@ -18,6 +18,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 from .utils import gen_token
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponseForbidden
 
 from django.urls import reverse
@@ -134,7 +135,6 @@ class EditProfile(LoginRequiredMixin, UpdateView):
     form_class = EditProfileForm
     template_name = 'user_update.html'
     success_url = '/profile/'
-
 
     def get_object(self):
         return get_object_or_404(self.model, pk=self.request.user.id)

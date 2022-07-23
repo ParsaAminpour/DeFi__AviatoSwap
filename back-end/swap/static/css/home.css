@@ -1,9 +1,8 @@
-#wallpaper {
-    position: relative;
-    height: 867px;
-    width: 4000px;
-    margin-left: -10px;
-    margin-top: -5px;
+#body-css {
+    background-color: rgb(145, 103, 103);
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
 }
 
 #title {
@@ -162,12 +161,13 @@ a.button_link {
 }
 
 #start_solving{
-    width: 313px;
-    height: 40px;
+    width: 500px;
+    height: 60px;
     background-image: linear-gradient(to right, rgb(255, 0, 184) 0%, rgb(100, 161, 255) 50%, rgb(0, 102, 255) 100%);
-    margin-left: 33px;
-    margin-top: 20px;
+    margin-left: 0px;
+    margin-top: 35px;
     border: none;
+    border-radius: 5px;
 }
 
 #image_content {

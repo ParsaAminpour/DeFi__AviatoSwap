@@ -12,9 +12,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 application = ProtocolTypeRouter({
   'http' : get_asgi_application(),
 
-  'webocker' : AuthMiddlewareStack(
-    URLRouter(chatroom.routing.websocket_urlpatterns)
-  )
+  'websocket' : URLRouter(chatroom.routing.websocket_urlpatterns),
 })
 
 

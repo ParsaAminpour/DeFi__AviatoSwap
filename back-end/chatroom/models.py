@@ -1,12 +1,14 @@
+from signal import default_int_handler
 from django.db import models
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.utils import timezone
 from swap.models import User
 
 class Message(models.Model):
 	message = models.CharField(max_length=256, null=True, blank=True)
 	owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
-	time = models.DateField(null=True, blank=True)
+	time = models.DateField(null=True, blank=True, default=timezone.now())
 	def __str__(self):
 		return self.message
 

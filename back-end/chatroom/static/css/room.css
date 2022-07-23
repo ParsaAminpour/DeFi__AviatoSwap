@@ -245,3 +245,11 @@ main footer a{
 .recent {
 	float: right;
 }
+
+
+.msg-area {
+	width: 1000px;
+	height: 200px;
+  
+	border: none;
+  }

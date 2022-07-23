@@ -5,9 +5,28 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <link rel="stylesheet" href="{% static 'css/room.css' %}">
     <title>{{room.name}}</title>
+
+<style>
+.msg-area {
+	width: 700px;
+	height: 100px;
+	border: none;
+	justify-content: left;
+}
+
+#sending {
+	display: block;
+	margin-top: 10px;
+	height: 50px;
+	width: 100px;
+	border: 1px solid gainsboro;
+	background-color: rgb(168, 223, 86);
+}
+</style>
 </head>
 
 <body>
@@ -27,53 +46,30 @@
 			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_star.png" alt="" style="margin-left: -140px; margin-top:-5px">
 		</header>
 
-
-
 		<ul id="chat">
-		{% for msg in messages %}
-
-			{% if msg.owner.username == request.user.username %}
+			{% for msg in messages %}
 				<li class="me">
 					<div class="entete">
 						<span class="status green"></span>
-						<h2 id="owner">{{msg.owner}}</h2>
-						<h3 id='time'>fdvfd</h3>
+						<h2 id="owner"></h2>
+						<h3 id='time'></h3>
 					</div>
-					<!-- <div class="triangle"></div> -->
 					<div class="message">
-						{{msg.message}}
+						{{msg}}
 					</div>
 				</li>
-
-			{% else %}
-
-				<li class="you">
-					<div class="entete">
-						<h3 id="you_time"></h3>
-						<h2>{{msg.owner}}</h2>
-						<span class="status blue"></span>
-					</div>
-					<div class="triangle"></div>
-					<div class="message">
-						{{msg.message}}
-					</div>
-				</li>
-			{% endif %}
-
-		{% endfor %}
+			{% endfor %}
 		</ul>
 
-
-
-
 		<footer>
-			<textarea placeholder="Type your message" id="msg-area"></textarea>
+			<form method="POST"> {% csrf_token %}
+				{{form.message}}	
+				{{form.owner}}
+				<!-- <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_picture.png" alt=""> -->
 
-			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_picture.png" alt="">
-
-			<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_file.png" alt="">
-
-			<a id="sending">Send</a>
+				<!-- <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/1940306/ico_file.png" alt=""> -->
+				<input type="submit" id="sending">
+			</form>
 		</footer>
 </main>
 	
@@ -87,52 +83,10 @@
 			</ul>
 	
 
-	{{room.name | json_script:'room_name'}}
-	{{room.id | json_script:'room_id'}}
-	{{request.user.username | json_script:'username'}}
+{{room.name | json_script:'room_name'}}
+{{room.id | json_script:'room_id'}}
+{{request.user.username | json_script:'username'}}
 
-<!-- <script src="{% static 'js/room.js' %}"></script> -->
-<script type="text/javascript">
-	let back_btn = document.getElementById('back')
-	let send = document.getElementById('sending')
-	let txt_area = document.getElementById('msg_area')
-	const room_name = document.getElementById('room_name')
-	const username = document.getElementById('username')
-	const add_url = "http://127.0.0.1:8000/api/message/add/"
-	const get_url = "http://127.0.0.1:8000/api/"
-
-	back_btn.addEventListener('click', () => {
-		history.back()
-	})
-
-	const ws = new WebSocket(`ws://${window.location.host}/chat/${room_name}`)	
-
-	send.addEventListener('click', (e) => {
-		if(txt_area.value != '') {
-			ws.send(JSON.stringify({
-				'message' : 'txt_area.value',
-				'username' : username
-			}))
-			txt_area.value = ''
-
-		} else {
-			alert('please filling out the message box')
-		}
-	})
-
-	we.onmessage = async(e) => {
-		await data = JSON.parse(e.data)
-		await message = data['message']
-		await username = data['username']
-
-		await response = fetch('')
-	}
-
-
-
-
-
-</script>
-
+<script src="{% static 'js/room.js' %}"></script>
 </body>	
 </html>

@@ -314,17 +314,23 @@ padding:0;
 			{% for room in rooms %}
 			<li>
 			  <div class="timeline-image">
-				<a href="http://127.0.0.1:8000/chat/rooms/{{room.id}}" id="chat_link">
-				<img class="img-circle img-responsive" src="{{room.pic.url}}" alt="">
+				
+        <a href="http://127.0.0.1:8000/chat/rooms/{{room.id}}" id="chat_link"
+        onclick="test()">
+				
+        <img class="img-circle img-responsive" src="{{room.pic.url}}" alt="">
 				</a>
 			  </div>
 			  <div class="timeline-panel">
 				<div class="timeline-heading">
 				  <h4></h4>
 				  <h4 class="subheading">
-					<a href="http://127.0.0.1:8000/chat/rooms/{{room.id}}" id="chat_link">
-						{{room.name}}
-					</a></h4>
+					
+            <a href="http://127.0.0.1:8000/chat/rooms/{{room.id}}" id="chat_link" 
+            onclick="test()">
+						 {{room.name}}
+					
+            </a></h4>
 				</div>
 				<div class="timeline-body">
 				  <p class="text-muted">
@@ -341,11 +347,15 @@ padding:0;
 	</div>
 <br><br><br><br><br><br><br><br>
 <hr>
+<script>
+  function test() {
+    console.log("clicked");
+  }
+</script>
 
 
 
-
-
+<!-- 
 
 <div class="container">
 	<center><h1> Tweets </h1></center>
@@ -353,28 +363,28 @@ padding:0;
         <div class="col-md-12">
             <div class="main-timeline">
 
-                <div class="timeline">
+                <div class="timeline"> -->
                     <!-- <a href="#" class="timeline-content"> -->
 
-                    	{% for user, tw, url in tweets %}
+                    	<!-- {% for user, tw, url in tweets %} -->
           
-                        <div class="timeline-year"></div>
+                        <!-- <div class="timeline-year"></div>
                         <h3 class="title">{{user}}</h3>
                         <p class="description">
                         	<a href="{{url}}" style="text-decoration: none; color:black;">{{tw}}</a>
                         </p>
           				<br>
-                        {% endfor %}
-                        <div class="timeline-icon"><i class="fa fa-globe"></i></div>
+                        <!-- {% endfor %} -->
+                        <!-- <div class="timeline-icon"><i class="fa fa-globe"></i></div> -->
                     <!-- </a> -->
-                </div>
-        
-            </div>
-        </div>
-    </div>
-</div>
+                <!-- </div> -->
+        <!--  -->
+            <!-- </div> -->
+        <!-- </div> -->
+    <!-- </div> -->
+<!-- </div> --> 
 
-
+<!-- <script src="{% static 'js/index.js' %}"></script> -->
 
 </body>
 </html>

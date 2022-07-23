@@ -1,6 +1,5 @@
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
-from decouple import config
 import os
 
 
@@ -13,7 +12,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'swap.User'
 
@@ -93,7 +92,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('localhost', 6379)],
+        },
+        'ROUTING' : 'ws.routing.application'
+    },
+}
 
 LANGUAGE_CODE = 'en-us'
 
@@ -134,14 +141,6 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
-
-
-CHANNEL_LAYERS = {
-    'default' : {
-        'BACKEND' : 'channels.layers.InMemoryChannelLayers'
-    }
-}
-
 
 API_KEY = os.environ.get('API_KEY')
 API_SECRET_KEY = os.environ.get("API_SECRET_KEY")

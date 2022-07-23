@@ -1,4 +1,4 @@
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 // SPDX-License-Identifier: MIT
 import "./SafeMath.sol";
 
@@ -70,6 +70,7 @@ contract Token {
         _transfer(msg.sender, _to, _value);
         return true;
     }
+
 
     function transferFrom(
         address _from,

@@ -1,0 +1,193 @@
+::-webkit-scrollbar {
+    display: none;
+}
+body {
+    background-color: white;
+}
+
+.section-left {
+    /* border: 1px solid black; */
+    height: 100%;
+    width: 71%;
+    overflow-y: hidden;
+    position: absolute;
+    margin-left: -10px;
+}
+
+.section-right {
+    /* border: 1px solid red; */
+    height: 100%;
+    width: 29%;
+    overflow-y: hidden;
+    position: absolute;
+    margin-left: 1355px;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.logo {
+    margin-top: 40px;
+    margin-bottom: 10px;
+    margin-left: 60px;    
+    color: rgb(255, 66, 104);
+    font-size: 40px;
+    /* position: static; */
+    text-shadow: 3px 4px 7px rgba(229, 222, 194, 0.8);
+}
+
+.home {
+    border-radius: 10px;
+    border: none;
+    width: 100px;
+    height: 30px;
+    margin-top: 20px;
+    margin-left: 20px;
+    /* box-shadow: 7px 10px 18px gray; */
+    background-color: transparent;
+}
+/* .home:hover{
+    text-shadow: 0px 15px 5px rgba(0,0,0,0.1),
+    10px 20px 5px rgba(0,0,0,0.05),
+    -10px 20px 5px rgba(0,0,0,0.05);
+} */
+
+a.button_link {
+    text-decoration: none;
+    color: black;
+    font-size: large;
+    font-style:unset;
+}
+
+.chatroom {
+    border: none;
+    border-radius: 10px;
+    margin-left: 20px;
+    margin-top: 20px;
+    width: 120px;
+    height: 30px;
+    /* box-shadow: 10px 10px 18px gray; */
+    background-color: transparent;
+}
+/* .chatroom:hover{
+    box-shadow: 0px 10px 40px rgb(219, 217, 217);
+} */
+
+.profile {
+    border: none;
+    height: 30px;
+    width: 100px;
+    border-radius: 10px;
+    margin-left: 20px;
+    margin-top: 20px;
+    /* box-shadow: 10px 10px 18px gray; */
+    background-color: transparent;
+}
+/* .profile:hover {
+    box-shadow: 0px 10px 40px rgb(219, 217, 217);
+} */
+
+.signup {
+    border: none;
+    border-radius: 10px;
+    height: 30px;
+    width: 100px;
+    margin-left: 20px;
+    margin-top: 20px;
+    /* box-shadow: 10px 10px 18px gray; */
+    background-color: transparent;
+}
+/* .signup:hover {
+    box-shadow: 0px 10px 40px rgb(219, 217, 217);
+} */
+
+.login {
+    border: none;
+    border-radius: 10px;
+    height: 30px;
+    width: 100px;
+    margin-left: 20px;
+    margin-top: 20px;
+    /* box-shadow: 10px 10px 18px gray; */
+    background-color: transparent;
+}
+/* .login:hover {
+    box-shadow: 0px 10px 40px rgb(219, 217, 217);
+} */
+
+#buttons {
+    width: 800px;
+    height: 80px;
+    margin-left: 290px;
+    position: absolute;
+    margin-top: -70px;
+    /* border: 1px solid orange; */
+    /* position: absolute; */
+}
+
+/* ##################################################### */
+#content {
+    position: relative;
+    height: 600px;
+    width: 1400px;
+}
+
+.explain-text {
+    height: 580px;
+    width: 700px;
+    padding-left: 80px;
+    padding-right: 20px;
+    padding-top: 80px;
+    line-height: 105px;
+    position: absolute;
+    font-size: 80px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif
+}
+
+.explain-content {
+    border: 1px solid black;
+    position: absolute;
+}
+
+#start_solving{
+    width: 500px;
+    height: 60px;
+    background-image: linear-gradient(to right, rgb(255, 0, 184) 0%, rgb(100, 161, 255) 50%, rgb(0, 102, 255) 100%);
+    margin-left: 0px;
+    margin-top: 35px;
+    border: none;
+    border-radius: 5px;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container {
+    margin: 100px;
+    top: 10;
+}
+
+.my-button {
+    width: 200px;
+    height: 200px;
+    border: none;
+    border-radius: 100px;
+    outline: none;
+    background: #69f087;
+    color: white; 
+    cursor: pointer;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    font-size: x-large;
+    position: fixed;
+}
+.my-button:hover {
+    background: #7ff3b9;}
+
+.button {
+    margin-left: 1270px;
+    margin-top: 470px;
+    top: 10;
+}

@@ -1,3 +1,5 @@
+from decimal import DecimalException
+from unicodedata import name
 from rich import print, pretty
 from collections import deque
 from queue import Queue
@@ -16,6 +18,8 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
+from sklearn.neighbors import RadiusNeighborsTransformer
+from yaml import FlowMappingStartToken
 from .utils import gen_token
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
@@ -112,7 +116,6 @@ async def get_api(url:str):
     result = [*asyncio.gather(*actions)]
     return result
 
-
 class CustomePermission(PermissionRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
@@ -123,15 +126,14 @@ class CustomePermission(PermissionRequiredMixin):
             return HttpResponseForbidden(self.permission_denied_message)
         
         return super(CustomePermission, self).dispatch(request, *args, **kwargs)
-
-
+    
 class EditProfile(LoginRequiredMixin, UpdateView):
     permission_denied_message = '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>'
     login_url='/login/'
     redirect_field_name = 'next'
     reaise_exception = True
     permission_required = 'user.change_user'
-    model = User
+    model = User        
     form_class = EditProfileForm
     template_name = 'user_update.html'
     success_url = '/profile/'

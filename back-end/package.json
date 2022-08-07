@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@metamask/onboarding": "^1.0.1",
+    "@openzeppelin/contracts": "^4.7.2",
     "jquery": "^3.6.0"
   }
 }

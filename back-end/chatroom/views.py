@@ -1,5 +1,6 @@
 from base64 import decode
 from http import cookies
+from django.http import HttpResponseServerError
 from django.shortcuts import redirect, render
 from django.core.exceptions import PermissionDenied
 from django.views import View
@@ -29,7 +30,7 @@ from rich.console import Console
 from rich.traceback import Trace
 from asgiref.sync import sync_to_async, async_to_sync
 import tweepy
-console = Console()
+console = Console()	
 
 class ChatList(LoginRequiredMixin, View):
 	def get(self, request):
@@ -72,8 +73,11 @@ def get_data_from_twitter():
 
 class RoomView(View):
 	def __init__(self):
-		self.r = redis.Redis(
-			"localhost", port=6379, db=0, decode_responses=True)
+		try:
+			self.r = redis.Redis(
+				"localhost", port=6379, db=0, decode_responses=True)
+		except Exception:
+			return HttpResponseServerError("Redis has some problem")
 
 	def get(self, request, room_id:int):
 		room = get_object_or_404(Room,  id=room_id)

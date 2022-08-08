@@ -191,3 +191,29 @@ a.button_link {
     margin-top: 470px;
     top: 10;
 }
+
+.connect-wallet {
+    width: 200px;
+    position: absolute;
+    margin-top: 20px;
+    margin-left: 140px;
+    border: none;
+    background-color: #ff7e7e;
+}
+.wallet-info {
+    display: block;
+    position: absolute;
+    border: 1px solid black;
+    width: 400px;
+    height: 100px;
+    margin-top: 800px;
+    margin-left: 700px;
+}
+.connected-wallet {
+    width: 200px;
+    position: absolute;
+    margin-top: 20px;
+    margin-left: 140px;
+    border: none;
+    background-color: #a1ffb5;
+}

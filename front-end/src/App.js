@@ -11,7 +11,7 @@ class App extends React.Component {
         return(
             <Router>
                 <Routes>
-                    <Route exact path="/" caseSensitive={false} element={<Home address="0x0" balance="0.0" wallet_status="false" />} />
+                    <Route exact path="/" caseSensitive={false} element={<Home />} />
 
                     <Route exact path="/signup" caseSensitive={false} element={<Signup />} />
 

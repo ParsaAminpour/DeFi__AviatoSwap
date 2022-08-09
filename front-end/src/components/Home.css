@@ -217,3 +217,7 @@ a.button_link {
     border: none;
     background-color: #a1ffb5;
 }
+.swap-link {
+    color: black;
+    text-decoration: none;
+}

@@ -5,6 +5,7 @@ import Home from "./components/Home"
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import Swap from "./components/Swap"
 
 class App extends React.Component {
     render() {
@@ -16,6 +17,8 @@ class App extends React.Component {
                     <Route exact path="/signup" caseSensitive={false} element={<Signup />} />
 
                     <Route exact path="/login" caseSensitive={false} element={<Login />} />
+
+                    <Route exact path="/swap" caseSensitive={false} element={<Swap />}/>
                 </Routes>
             </Router>
         )

@@ -28,7 +28,8 @@ const Home = () => {
             document.getAnimations("connect_btn").innerHTML = "Connect Wallet"
         } else {
             document.getElementById("connect_btn").style.background = "#a1ffb5";
-            document.getElementById("connect_btn").innerHTML = "Wallet Connected"
+            document.getElementById("connect_btn").innerHTML = 
+                `${window.ethereum.selectedAddress.slice(0,6)}....`
         }
     })
 
@@ -104,7 +105,9 @@ const Home = () => {
             </div>
 
             <div className="button">
-                <button className="my-button">Swap</button>    
+                <button className="my-button">
+                    <Link className="swap-link" to="/swap/"> Swap </Link> 
+                </button>    
             </div>                
         </div>
 
@@ -112,10 +115,10 @@ const Home = () => {
             <img src={right_wallpaper5} className="right-wallpaper" alt="right-wallpaper" />
         </div>
 
-        <div className="wallet-info">
+        {/* <div className="wallet-info">
             <h2> address: {localStorage.getItem("address")}</h2> <br />
             <h2> balance: {localStorage.getItem("balance")}</h2>
-        </div>
+        </div> */}
            
     </div>
     )

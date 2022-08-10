@@ -98,8 +98,8 @@ contract AviatoSwap is ERC20 ,Ownable {
         console.log(string(data));
 
 
-	    require(minted[msg.sender] && balanceOf(msg.sender) == 100);
-	    new_user_balance_ = balanceOf(msg.sender);
+	require(minted[msg.sender] && balanceOf(msg.sender) == 100);
+	new_user_balance_ = balanceOf(msg.sender);
         _data = data;
     }
 }

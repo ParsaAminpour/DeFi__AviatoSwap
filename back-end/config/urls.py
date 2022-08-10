@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('swap.urls')),
+    #path('', include('swap.urls')),
     path('chat/', include('chatroom.urls')),
-    path('react/', TemplateView.as_view(template_name="index.html"))
+    path('', TemplateView.as_view(template_name="index.html"))
 ]

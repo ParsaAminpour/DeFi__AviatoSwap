@@ -53,7 +53,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "front-end/src")
+            os.path.join(BASE_DIR.parent, "front-end/build")
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -116,7 +116,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "front-end/public"),
+    os.path.join(BASE_DIR.parent, "front-end/build/static"),
 ]
 
 REST_FRAMEWORK = {

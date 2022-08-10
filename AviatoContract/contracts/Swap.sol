@@ -11,7 +11,7 @@ contract AviatoSwap is ERC20, Ownable{
     using Counters for uint;
     using Address for address;
 
-    uint token_per_eth = 10000; 
+    uint token_per_eth = 10000;
     constructor(string memory _name, string memory _symbol) 
         ERC20(_name, _symbol) {
         _mint(msg.sender, 100 * 10**18);

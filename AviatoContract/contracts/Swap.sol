@@ -6,21 +6,34 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
-contract AviatoSwap is ERC20, Ownable{
+contract AviatoSwap is ERC20, Ownable {
     using Counters for uint;
     using Address for address;
+	
+    uint private token_per_eth = 10000;
+    uint private airdrop_amount = 100;
+    address[] private address_list;
+    mapping(address => bool) private minted;
 
-    uint token_per_eth = 10000;
+    event airdrop(address indexed _receiver_address, uint indexed _amount_received);
+    event mint_problem(address indexed _mint_address, uint indexed _mint_amount);
+
+
     constructor(string memory _name, string memory _symbol) 
         ERC20(_name, _symbol) {
         _mint(msg.sender, 100 * 10**18);
+        token_per_eth = 10000;
+        airdrop_amount = 100;
     }
+
 
     function set_allowance(uint _amount) public {
         require(balanceOf(msg.sender) >= _amount, "invalid amount");
         _approve(msg.sender, address(this), uint256(_amount));
     }
+
 
     function purchaseToken(uint token_amount_) public payable onlyOwner { //receive ether
         uint contract_balance_before_receiving = address(this).balance;
@@ -34,6 +47,7 @@ contract AviatoSwap is ERC20, Ownable{
         bool result_ = transfer(msg.sender, token_amount_);
         require(result_, "some error occured in purchaseToken function");
     }   
+
 
     function sellToken(uint token_amount) public payable onlyOwner {
         uint eth_rate_amount = token_amount / 10000;
@@ -51,4 +65,20 @@ contract AviatoSwap is ERC20, Ownable{
         
         require(sent && balanceOf(address(this)) > swap_token_balance_before_impl, "somthign web srong");
     }
+
+
+    // This is the first function that implemented before using other functions of swap
+    function swap_airdrop() public onlyOwner returns(uint new_user_balance_) {
+        require(!minted[msg.sender], "account has get already airdrop");
+	    _mint(msg.sender, airdrop_amount);
+
+        minted[msg.sender] = true;
+        address_list.push(msg.sender);
+	
+	    require(minted[msg.sender] && balanceOf(msg.sender) == 100);
+	    new_user_balance_ = balanceOf(msg.sender);
+    }
+
+
 }
+

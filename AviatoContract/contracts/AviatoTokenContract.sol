@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-contract AviatoContract is ERC20 , Ownable{
+contract AviatoTokenContract is ERC20 , Ownable{
     address[] private address_list;
     mapping(address => bool) private minted;
     constructor() ERC20("Aviato", "AVT") {
@@ -16,12 +16,12 @@ contract AviatoContract is ERC20 , Ownable{
         new_balance_ = balanceOf(msg.sender);
     }
 
-    function add_addr_to_address_list(address _addr) internal onlyOwner returns(bool) {
+    function add_addr_to_address_list(address _addr) external onlyOwner returns(bool) {
         require(_addr != address(0), "address is invalid");
         require(!minted[_addr], "this address has already added");
         address_list.push(_addr);
         minted[_addr] = true;
-        return minted[_addr];
+        return minted[_addr];   
     }
 
     function get_addr() public view returns(address) {

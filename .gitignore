@@ -4,6 +4,14 @@ modules.py
 analysis.ipynb
 yncdb
 twitter_api.ipynb
+.coverage
+request.json
+request2.json
+request.txt
+package.json
+package-lock.json
+
+
 # Created by https://www.gitignore.io/api/django
 # Edit at https://www.gitignore.io/?templates=django
 

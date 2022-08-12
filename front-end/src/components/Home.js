@@ -5,6 +5,7 @@ import right_wallpaper5 from "./images/right_wallpaper5.jpg"
 import axios from "axios";
 import { MetaMaskProvider } from "metamask-react"
 import { Link } from "react-router-dom";
+// import TwitterIcon from '@mui/icons-material/Twitter';
 
 const Home = () => {
     const [address_state, setAddress] = useState(null);
@@ -74,7 +75,7 @@ const Home = () => {
 
             <div id="buttons">
                 <button className="home">
-                    <Link className='button_link' to="https://github.com/ParsaAminpour/Aviato-Swap"> Source </Link></button>
+                    <a className='button_link' href="https://github.com/ParsaAminpour/Aviato-Swap" blank> Source </a></button>
 
                 <button className="chatroom"> 
                     <Link className='button_link' to="/chatroom/">

@@ -1,4 +1,5 @@
 from decimal import DecimalException
+from multiprocessing import allow_connection_pickling
 from unicodedata import name
 from rich import print, pretty
 from collections import deque
@@ -36,6 +37,8 @@ from django.contrib.auth.models import User, Group, Permission
 from django.core.management.utils import get_random_secret_key
 from django.core.signing import TimestampSigner
 # from django.core.signing import BadSigning
+
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.utils.translation import gettext as _
 from .serializers import UserSerializer, walletSerializer
@@ -347,3 +350,16 @@ class wallet_api_post(APIView):
             )
         return Response(UserSerializer.errors,
                     status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class BlackListApiView(APIView):
+    permission_classes = (AllowAny, )
+    
+    def post(self, request):
+        try:
+            refresh_token_ = request.data.get("refresh_token")
+            refresh_token = RefreshToken(refresh_token)
+            refresh_token.blacklist()
+        except Exception:
+            return Response(f"BAD REQUEST FOR LOGOUT",
+                status=status.HTTP_400_BAD_REQUEST)

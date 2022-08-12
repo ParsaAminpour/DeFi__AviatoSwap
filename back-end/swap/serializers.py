@@ -8,6 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username',' email', 'password1', 'password2')
+        extra_kwargs = {'password1', {'write_only' : True}}
 
     def validate(self, data):
         if data.get('password1') != data.get('password2'):

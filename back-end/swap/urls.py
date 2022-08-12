@@ -1,8 +1,9 @@
 from django.urls import re_path
 from os import stat
 from django.urls import path
-from .views import Home, Signup, Profile, Swap, Info, Login, AddUserApiView,\
-    user_api_view, wallet_api_get, wallet_api_post, EditProfile, Donation, ActivateView
+from .views import BlackListApiView, Home, Signup, Profile, Swap, Info, Login, AddUserApiView,\
+    user_api_view, wallet_api_get, wallet_api_post, EditProfile, Donation, ActivateView,\
+    BlackListApiView
 from django.contrib.auth.views import LogoutView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -24,6 +25,7 @@ urlpatterns = [
     path('api/wallet/<int:wallet_id>/', wallet_api_get.as_view()),
     path('api/wallet/add/', wallet_api_post.as_view()),
     path('profile/edit/', EditProfile.as_view(), name='edit'),
-    path('register/activate/<uidb64>/<token>/', ActivateView.as_view(), name='activate')
+    path('register/activate/<uidb64>/<token>/', ActivateView.as_view(), name='activate'),
+    path("logout/blacklist/", BlackListApiView.as_view(), name="black_list_api_logout_view")
 ] + static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

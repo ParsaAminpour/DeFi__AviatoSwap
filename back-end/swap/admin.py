@@ -18,6 +18,7 @@ class UserAdmin(UserAdmin):
         else:
             return form
 
+# The admin userPermission will define 
 class UserPermissionMixin:
     def has_view_permission(self, request, obj=None):
         # return False if request.user.is_anonymous else True

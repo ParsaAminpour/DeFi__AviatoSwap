@@ -26,9 +26,8 @@ class Chat(forms.ModelForm):
             
         return self.cleaned_data.get("message")
 
-
-    # def __init__(self, *args, **kwargs):
-    #     super(Chat, self).__init__(args, kwargs)
-    #     self.fields['message'].required = True
-    #     self.fields['owner'].required = True
-    #     self.fields['time'] = timezone.now()
+    def __init__(self, *args, **kwargs):
+        super(Chat, self).__init__(args, kwargs)
+        self.fields['message'].required = True
+        self.fields['owner'].required = True
+        self.fields['time'] = timezone.now()

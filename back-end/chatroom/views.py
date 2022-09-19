@@ -48,7 +48,7 @@ class ChatList(LoginRequiredMixin, View):
 
 def get_data_from_twitter():
 		'''
-			Unfortunately my twitter API has been crashed to some problem
+			Unfortunately my twitter API has been crashed to some problems;
 			I'll fix it ASAP
 		'''
 		client = tweepy.Client(bearer_token = BEARER)

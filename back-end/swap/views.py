@@ -1,6 +1,3 @@
-from decimal import DecimalException
-from multiprocessing import allow_connection_pickling
-from unicodedata import name
 from rich import print, pretty
 from collections import deque
 from queue import Queue
@@ -129,7 +126,7 @@ class CustomePermission(PermissionRequiredMixin):
             return HttpResponseForbidden(self.permission_denied_message)
         
         return super(CustomePermission, self).dispatch(request, *args, **kwargs)
-    
+
 class EditProfile(LoginRequiredMixin, UpdateView):
     permission_denied_message = '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>'
     login_url='/login/'
@@ -199,7 +196,6 @@ def Signup(request):
             return redirect('login')
             # return render(request, 'profile.html', {'user':user})
         return render(request, 'error.html', {'error' : form.errors})
-
 
 
 class ActivateView(View):

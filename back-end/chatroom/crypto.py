@@ -4,6 +4,7 @@ import os
 
 load_dotenv(find_dotenv())
 
+# Theses codes are test, I'll implement 'Tripple Diffie Helleman' cryptography architecture on this chatroom.
 class Crypto:
 	def __init__(self):
 		self.key = Fernet.generate_key()

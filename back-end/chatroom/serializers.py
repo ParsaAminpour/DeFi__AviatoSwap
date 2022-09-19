@@ -8,7 +8,7 @@ class MessageSerialize(serializers.ModelSerializer):
 		fields=('message','owner')
 
 	def validate_message(self, value):
-		if len(message) > 256:
+		if len(value) > 256:
 			return serializers.ValidationError('The message is too much')
 
 		return value

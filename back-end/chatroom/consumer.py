@@ -1,5 +1,3 @@
-#consumers are akin to django
-import async_timeout
 from random import randint
 from colorama import Fore,init
 from rich import print, pretty
@@ -7,7 +5,6 @@ from rich.console import Console
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import sync_to_async, async_to_sync
 from cryptography.fernet import Fernet
-from zmq import SOCKS_PASSWORD
 from .models import Room, Message
 from hashlib import sha256
 from .crypto import Crypto

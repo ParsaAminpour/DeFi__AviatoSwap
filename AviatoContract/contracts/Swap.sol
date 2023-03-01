@@ -31,7 +31,6 @@ contract AviatoSwap is ERC20 ,Ownable {
         airdrop_amount = 100;
     }
 
-
     function set_allowance(uint _amount) public {
         require(balanceOf(msg.sender) >= _amount, "invalid amount");
         _approve(msg.sender, address(this), uint256(_amount));

@@ -127,6 +127,7 @@ class CustomePermission(PermissionRequiredMixin):
         
         return super(CustomePermission, self).dispatch(request, *args, **kwargs)
 
+
 class EditProfile(LoginRequiredMixin, UpdateView):
     permission_denied_message = '403 Forbidden<br /><center><h2>This page is forbidden for you</h2></center>'
     login_url='/login/'

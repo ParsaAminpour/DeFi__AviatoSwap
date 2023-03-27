@@ -26,20 +26,16 @@ class User(AbstractUser):
     def wallet_address(self):
         if self.wallet.address is not None:
             return self.wallet.address
-        else:
-            return ''
+        else: return ''
 
     @property
     def get_profile_pic(self):
         if self.profile_pic == None:
             return '/static/images/unknown.jpg'
-        else:
-            return self.profile_pic
-
+        else: return self.profile_pic
 
     def __str__(self):
         return self.username
-
 
 
 class PurchaseMap(models.Model):

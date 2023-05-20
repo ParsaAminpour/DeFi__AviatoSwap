@@ -55,7 +55,7 @@ def get_data_from_twitter():
 
 		q ="#BTC OR #ETH"
 		response2 = client.search_recent_tweets(query=q, user_fields=['profile_image_url', 'username'], 
-			expansions=["author_id","referenced_tweets.id"], max_results=10)
+			expansions=["author_id","referenced_tweets.id"], max_results=10) 
 
 		result = {data.author_id : data.text.strip() for data in response2.data}
 		users = [client.get_user(id=key) for key in list(result.keys())]

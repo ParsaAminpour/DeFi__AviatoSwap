@@ -71,13 +71,13 @@ def get_data_from_twitter():
 
 		main_result = zip(usernames,tweets,urls)
 
-class RoomView(View):
+class TestView(View):
 	def __init__(self):
 		try:
 			self.r = redis.Redis(
-				"localhost", port=6379, db=0, decode_responses=True)
+				'localhost', port=6379, db=0, decode_response = True)
 		except Exception:
-			return HttpResponseServerError("Redis has some problem")
+			return HttpResponseServerError('some error occured for Redis production')
 
 	def get(self, request, room_id:int):
 		room = get_object_or_404(Room,  id=room_id)

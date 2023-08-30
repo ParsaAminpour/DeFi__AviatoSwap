@@ -88,7 +88,7 @@ contract AviatoSwap is ERC20 ,Ownable {
         minted[msg.sender] = true;
         address_list.push(msg.sender);
 
-        address aviato_token_address = AviatoSwap.getAviatoContractAddress();
+        address aviato_token_address = this.getAviatoContractAddress();
         (bool success, bytes memory data) = aviato_token_address.call{value:100, gas:5000}(
             abi.encodeWithSelector(AviatoTokenContract.add_addr_to_address_list.selector, msg.sender)
         );

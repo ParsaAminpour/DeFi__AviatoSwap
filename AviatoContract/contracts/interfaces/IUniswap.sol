@@ -46,7 +46,7 @@ interface IUniswapV2Router {
     returns (
       uint amountA,
       uint amountB,
-      uint liquidity
+      uint liquidity // liquidity token which will mint and will sent to the (to) address prefer this contract address.
     );
 
   function removeLiquidity(
@@ -59,6 +59,11 @@ interface IUniswapV2Router {
     uint deadline
   ) external returns (uint amountA, uint amountB);
 }
+
+
+
+
+
 
 interface IUniswapV2Pair {
   event Approval(address indexed owner, address indexed spender, uint value);
@@ -154,6 +159,11 @@ interface IUniswapV2Pair {
 
   function initialize(address, address) external;
 }
+
+
+
+
+
 
 interface IUniswapV2Factory {
   event PairCreated(address indexed token0, address indexed token1, address pair, uint);

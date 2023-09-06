@@ -20,7 +20,7 @@ def get_account() -> str:
     if network.show_active() == 'mainnet_fork':
         account = accounts[0]
 
-
+@async_to_sync
 async def deploy_swap() -> bool:
     acc = await get_account()
     dai_addr = config.get('wallets').get('dai_address')
@@ -56,7 +56,6 @@ async def deploy_swap() -> bool:
 
 
 
-@async_to_sync
 def main():
     deploy_swap()
 

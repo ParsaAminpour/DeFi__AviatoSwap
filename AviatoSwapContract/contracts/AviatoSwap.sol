@@ -9,7 +9,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import '@uniswap/contracts/interfaces/IUniswapV2Factory.sol';
-import { IUniswapV2Router } from "./Uniswap.sol";
+import '@uniswap/contracts/interfaces/IUniswapV2Pair.sol';
+import { IUniswapV2Router } from "../interfaces/IUniswap.sol";
 import "./TokenA.sol";
 import "./TokenB.sol";
 
@@ -25,9 +26,6 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
 
     address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
-    // constructor(address _first_pair, address _second_pair) {
-    // }
-
     function swapping(address _first_pair, address _second_pair, uint _amountIn, uint _amountOutMin, address _to) 
     external nonReentrant{
         require(_first_pair != address(0) && _second_pair != address(0));
@@ -38,15 +36,35 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
         IERC20(FIRST_PAIR).approve(UNISWAP_V2_ROUTER, _amountIn);
 
         address[] memory path = new address[](3);
-        path[0] = address(FIRST_PAIR);
-        path[1] = address(WETH);
-        path[2] = address(SECOND_PAIR);
+        path[0] = FIRST_PAIR;
+        path[1] = WETH;
+        path[2] = SECOND_PAIR;
 
         IUniswapV2Router(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
             _amountIn, _amountOutMin, path, _to, block.timestamp+10800);
     }
 
-    function addingLiquidity() external {}
+    function bothSideAddingLiquidity(address _tokenA, address _tokenB, uint _amountA, uint _amountB, uint _amountAMin, uint _amountBMin, address _to, uint _death_time)
+    external 
+    returns(uint amountA, uint amountB, uint liquidity) {
+        require(_tokenA != address(0) && _tokenB != address(0), 'invalid token address');
+        require(_amountA != 0 && _amountB != 0, 'invalid amount for swao');
+        require(_amountAMin <= _amountA && _amountBMin <= _amountB, 'invalid minimum amount');
+        require(_to != address(0), 'invalid destination address');
+        require(_death_time >= block.timestamp);
+
+        // trasfering and approving
+        IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
+        IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
+
+        IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
+        IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);
+
+        (amountA, amountB, liquidity) = IUniswapV2Router(UNISWAP_V2_ROUTER).addLiquidity(
+            _tokenA, _tokenB, _amountA, _amountB, _amountAMin, _amountBMin, _to, block.timestamp+10800);
+    }
+
+    function oneSideAddingLiquiduty() external {}
 
     function removingLiquidity() external {}
 

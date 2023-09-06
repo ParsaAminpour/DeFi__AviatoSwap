@@ -1,4 +1,5 @@
-from brownie import Aviatoswap, accounts, interfaces, network, config, TokenA, TokenB
+from brownie import Aviatoswap, accounts, interfaces, network, config,\
+        TokenA, TokenB, oneSideAddingLiquiduty
 from rich import print, print_json
 from rich.console import Console 
 from asgiref.sync import sync_to_async, async_to_sync
@@ -97,6 +98,38 @@ async def adding_both_side_liquidity() -> bool:
         print(tx1.error())
         return False     
    return True
+
+
+@async_to_sync
+async def adding_one_side_optimal_liquidity() -> bool:
+    try:
+        token1 = await TokenA.deploy({'from':dai_whale_addr})
+        token2 = await TokenB.deploy({'from':dai_whale_addr})
+    except Exception as err:
+        print(f'[bold red]{err}[/bold red]')
+
+    AMOUNT_IN = 1e21
+
+    try:
+        Swap = await Aviatoswap.deploy({'from':dai_whale_addr})
+        asyncio.sleep(2)
+        OptimanSwap = await Swap.oneSideAddingLiquiduty(
+            token1.address, token2.address, AMOUNT_IN, {'from':dai_whale_addr})
+        
+        print(f'''[bold green]
+                The optimal swap deployed at {OptimalSwap.address}''')
+
+    except Exception  as err:
+        print(err)
+    
+
+
+
+if __name__ == '__main__':
+    adding_one_side_optimal_liquidity()
+
+
+
 
 def remove_both_side_liquidity() -> bool:
     ...

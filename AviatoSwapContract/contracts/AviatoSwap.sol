@@ -90,7 +90,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
             assembly {
                 minusOne := 0xfffffffff
             }
-            actual_amount = uint(minusOne*(_reserve1*(2000  -FEE)) + UniMath.sqrt(delta_val)) / 2*(1-FEE);
+            actual_amount = ((UniMath.sqrt(delta_val)) - uint(_reserve1*(2000  -FEE))) / 2*(1-FEE);
         }   
     }
 
@@ -106,7 +106,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     function oneSideAddingLiquiduty(address _token1, address _token2, uint _amout_for_token1) 
     external
     amountAndTokensCheck(_token1, _token2, _amout_for_token1)
-    returns(bool) {
+    returns(bool)  {
         address pair_ = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2);
         (uint reserve1_, uint reserve2_, ) = IUniswapV2Pair(pair_).getReserves();
 

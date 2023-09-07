@@ -81,8 +81,8 @@ async def adding_both_side_liquidity() -> bool:
     amount2 = 5*1e20
 
     await print(f'''[bold green] The balance of DAI whale 
-            from TokenA is {token1.balanceOf(dai_whale_addr} and 
-            for TokenB is {token2.balanceOf(dai_whale_addr}[/bold green]''')
+from TokenA is {token1.balanceOf(dai_whale_addr)} and 
+            for TokenB is {token2.balanceOf(dai_whale_addr)}[/bold green]''')
     
     try:
         swap = await Aviatoswap.deploy({'from':dai_whale_addr})
@@ -97,7 +97,7 @@ async def adding_both_side_liquidity() -> bool:
         print(f'[bold red] an error occured: {err.message}\n')
         print(tx1.error())
         return False     
-   return True
+   
 
 
 @async_to_sync

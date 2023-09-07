@@ -46,8 +46,8 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
      * @param _amountOutMin The minimum amount of tokens to receive from the swap.
      * @param _to The address to receive the swapped tokens.
      */
-    function _swapping(address _first_pair, address _second_pair, uint _amountIn, uint _amountOutMin, address _to) 
-        internal 
+    function swapping(address _first_pair, address _second_pair, uint _amountIn, uint _amountOutMin, address _to) 
+        public 
         amountAndTokensCheck(_first_pair, _second_pair, _amountIn)
         nonReentrant()
     {
@@ -89,14 +89,13 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
         uint _amountB,
         address _to,
         uint _death_time
-    ) internal  nonReentrant() returns(uint amountA, uint amountB, uint liquidity) {
+    ) public  nonReentrant() returns(uint amountA, uint amountB, uint liquidity) {
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
 
         // Transfer tokens from the caller to the contract
-        IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
-        IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
-
+        IERC20(_tokenA).transferFrom(_to, address(this), _amountA);
+        IERC20(_tokenB).transferFrom(_to, address(this), _amountB);
         // Approve the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);
@@ -163,12 +162,13 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
         uint amountOut = _getAmountOut(reserve1_, reserve2_, swapOptimalAmount);
         require(amountOut > 0, 'An error occured due _getAmountOut function');
 
-        _swapping(_token1, _token2, swapOptimalAmount, 1, msg.sender);
+        swapping(_token1, _token2, swapOptimalAmount, 1, msg.sender);
         (uint a_, uint b_, uint liq_) = _bothSideAddingLiquidity(_token1, _token2, swapOptimalAmount, amountOut, msg.sender, block.timestamp+10800);
         assert(a_ != 0 && b_ != 0);
         assert(liq_ != 0);
         return true;
     }
+    
 
     function removingLiquidity(address _token1, address _token2, uint _amount1, uint _amount2)
     external 

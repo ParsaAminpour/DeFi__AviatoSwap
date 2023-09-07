@@ -28,7 +28,7 @@ def get_account() -> str:
 
 @async_to_sync
 async def deploy_swap() -> bool:
-    global dai_addr, wbtc_addr, weth_addr
+    global dai_addr, wbtc_addr, weth_addr, dai_whale_addr
     acc = await get_account()
     dai_addr = config.get('wallets').get('dai_address')
     wbtc_addr = config.get('wallets').get('wbtc_address')
@@ -42,7 +42,7 @@ async def deploy_swap() -> bool:
     amount_in = 1_000*(10**18)
 
     try:
-        if DAI.balanceOf(fai_whale_addr) <= 0): 
+        if DAI.balanceOf(dai_whale_addr) <= 0: 
             raise Exception('Unisufficient Dai balance from DAI whale address')
 
 
@@ -91,7 +91,7 @@ from TokenA is {token1.balanceOf(dai_whale_addr)} and
 
         tx1 = await swap.botSideAddingLiquidity(
             token1.address, token2.address, amount1, amount2, 1,1, swap.address,
-            {'from'dai_whale_addr})
+            {'from':dai_whale_addr})
         
     except Exception as err:
         print(f'[bold red] an error occured: {err.message}\n')
@@ -101,19 +101,19 @@ from TokenA is {token1.balanceOf(dai_whale_addr)} and
 
 
 @async_to_sync
-async def adding_one_side_optimal_liquidity() -> bool:
+async def adding_one_side_optimal_liquidity() -> str:
     try:
         token1 = await TokenA.deploy({'from':dai_whale_addr})
         token2 = await TokenB.deploy({'from':dai_whale_addr})
     except Exception as err:
         print(f'[bold red]{err}[/bold red]')
 
-    AMOUNT_IN = 1e21
+    AMOUNT_IN = 1e21   # ~ 1_000 
 
     try:
         Swap = await Aviatoswap.deploy({'from':dai_whale_addr})
         asyncio.sleep(2)
-        OptimanSwap = await Swap.oneSideAddingLiquiduty(
+        OptimalSwap = await Swap.oneSideAddingLiquiduty(
             token1.address, token2.address, AMOUNT_IN, {'from':dai_whale_addr})
         
         print(f'''[bold green]
@@ -121,8 +121,43 @@ async def adding_one_side_optimal_liquidity() -> bool:
 
     except Exception  as err:
         print(err)
+        return json.dumps({
+            'swap' : Swap,
+            'tokenA' : token1,
+            'tokenB' : token2,
+            'status' : False
+        })
+        
+    return json.dumps({
+        'swap' : Swap,
+        'tokenA' : token1,
+        'tokenB' : token2,
+        'status' : True
+    })
     
 
+
+async def remove_desire_amount_iof_liquidity() -> bool:
+    try:
+        added = await adding_one_side_optimal_liquidity()
+        status_ = await json.loads(added).get('status')
+        
+        if status_ is False: raise Exception('error for adding liquidity') 
+
+        token1 = await json.loads(added).get('tokenA')
+        token2 = await json.loads(added).get('tokenB')
+        swap = await json.loads(added).get('swap')
+
+        tx = await swap.removingLiquidity(
+            token1, token2, 1e20, 1e20, 
+        ) # remove 10% of total 
+
+    except Exception as err:
+        print(err)
+        await print(tx.error())
+        return False
+    
+    return True
 
 
 if __name__ == '__main__':
@@ -131,5 +166,3 @@ if __name__ == '__main__':
 
 
 
-def remove_both_side_liquidity() -> bool:
-    ...

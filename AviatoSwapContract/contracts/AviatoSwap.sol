@@ -92,10 +92,13 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     ) public  nonReentrant() returns(uint amountA, uint amountB, uint liquidity) {
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
+        // require(IERC20(_tokenA).allowance(msg.sender, address(this)) != 0);
+        // require(IERC20(_tokenB).allowance(msg.sender, address(this)) != 0);
+
 
         // Transfer tokens from the caller to the contract
-        IERC20(_tokenA).transferFrom(_to, address(this), _amountA);
-        IERC20(_tokenB).transferFrom(_to, address(this), _amountB);
+        IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
+        IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
         // Approve the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);

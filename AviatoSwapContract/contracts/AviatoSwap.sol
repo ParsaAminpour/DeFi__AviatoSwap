@@ -32,15 +32,15 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3%
 
     event logUint(string indexed _message, uint indexed calculated_result);
+    event logTransfered(address indexed _from, address indexed _to, uint _amount);
+    event logSwapped(address indexed _to, uint indexed _amount);
+    event logLiquidityAdded(uint indexed _amount1, uint indexed _amount2);
 
     modifier amountAndTokensCheck(address _token1, address _token2, uint _amount1) {
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
         require(_amount1 != 0, 'invalid amount for swao');
         _;
     }
-
-
-
 
 
     /**
@@ -120,7 +120,6 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
             _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, block.timestamp + 10800
         );
     }
-
 
 
 

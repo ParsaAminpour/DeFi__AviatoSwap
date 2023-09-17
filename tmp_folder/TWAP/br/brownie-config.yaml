@@ -11,7 +11,7 @@ compiler:
       - '@chainlink=smartcontractkit/chainlink-brownie-contracts@0.6.1'
       - "@uniswap=Uniswap/uniswap-v2-core@1.0.1"
       - "@uniswap-periphery=uniswap/v2-periphery@1.0.0-beta.0"
-    version: 0.8.11
+    version: 0.6.6
     viaIR: True
 dotenv: .env
 wallets:
@@ -24,4 +24,5 @@ networks:
     link: "0x779877A7B0D9E8603169DdbD7836e478b4624789"
     vrf_coordinator: "0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625"
     key_hash: "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c"
+
 

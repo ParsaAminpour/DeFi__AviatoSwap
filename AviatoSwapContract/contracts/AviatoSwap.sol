@@ -26,7 +26,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     address private immutable DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address private immutable WBTC= 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
 
-    address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address private constant UNISWAP_V2_ROUTER = 0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98;
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
 
     uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3%
@@ -103,9 +103,10 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
 
+        // Approving operations will occur off-chain
 
         // Transfer tokens from the caller to the contract
-        try IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA) {
+        try IERC20(_tokenA).transfer(address(this), _amountA) {
             emit logTransfered(msg.sender, address(this), _amountA);
 
         } catch Error(string memory _err) {
@@ -115,7 +116,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         }
 
 
-        try IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB) {
+        try IERC20(_tokenB).transfer(address(this), _amountB) {
             emit logTransfered(msg.sender, address(this), _amountA);
 
         } catch Error(string memory _err) {

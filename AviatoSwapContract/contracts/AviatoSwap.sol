@@ -61,7 +61,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
         bool approved = IERC20(_first_pair).approve(address(this), _amountIn);
 
-        require(approved, "first pair token didn't approved from msg.sender to address(this)");
+        require(approved, "first pair token didnt approved from msg.sender to address(this)");
 
         IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
         IERC20(_first_pair).approve(UNISWAP_V2_ROUTER, _amountIn); // Allowing UNISWAPV2Router to swap tokens

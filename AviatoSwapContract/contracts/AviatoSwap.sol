@@ -22,22 +22,26 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     using UniMath for uint;
 
 
-    address private FIRST_PAIR;
     address private immutable WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address private immutable DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address private immutable WBTC= 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
-    address private SECOND_PAIR;
 
     address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
 
-    uint private constant FEE = 3;
+    uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3%
+
+    event logUint(string indexed _message, uint indexed calculated_result);
 
     modifier amountAndTokensCheck(address _token1, address _token2, uint _amount1) {
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
         require(_amount1 != 0, 'invalid amount for swao');
         _;
     }
+
+
+
+
 
     /**
      * @dev Swaps tokens on the Uniswap decentralized exchange.
@@ -55,16 +59,18 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
         require(_first_pair != address(0) && _second_pair != address(0), "Invalid token pair address");
         require(_to != address(0), "Invalid destination address");
 
-        FIRST_PAIR = _first_pair;
-        SECOND_PAIR = _second_pair;
+        bool approved = IERC20(_first_pair).approve(address(this), _amountIn);
 
-        IERC20(FIRST_PAIR).transferFrom(msg.sender, address(this), _amountIn);
-        IERC20(FIRST_PAIR).approve(UNISWAP_V2_ROUTER, _amountIn);
+        require(approved, "first pair token didn't approved from msg.sender to address(this)");
 
+        IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_first_pair).approve(UNISWAP_V2_ROUTER, _amountIn); // Allowing UNISWAPV2Router to swap tokens
+
+        // based on UniswapV2 documentation
         address[] memory path = new address[](3);
-        path[0] = FIRST_PAIR;
+        path[0] = _first_pair;
         path[1] = WETH; // considered as swap bridge
-        path[2] = SECOND_PAIR;
+        path[2] = _second_pair;
 
         IUniswapV2Router(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
             _amountIn, _amountOutMin, path, _to, block.timestamp + 10800);
@@ -93,14 +99,19 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     ) public  nonReentrant() returns(uint amountA, uint amountB, uint liquidity) {
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
-        // require(IERC20(_tokenA).allowance(msg.sender, address(this)) != 0);
-        // require(IERC20(_tokenB).allowance(msg.sender, address(this)) != 0);
+        require(IERC20(_tokenA).allowance(msg.sender, address(this)) != 0);
+        require(IERC20(_tokenB).allowance(msg.sender, address(this)) != 0);
 
+        // Approving tokens to address(this) as spender to manage liquidity
+        bool result1 = IERC20(_tokenA).approve(address(this), amountA);
+        bool result2 = IERC20(_tokenB).approve(address(this), amountB);
+        require(result1 && result2, "Some error occured in approving");
 
         // Transfer tokens from the caller to the contract
         IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
         IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
-        // Approve the Uniswap router to spend the transferred tokens
+
+        // Allowing the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);
 
@@ -111,57 +122,90 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     }
 
 
-    /** 
+
+
+    /**
+     * NOTE: The Fee variable ignored due to unsupporting decimals in EVM
+     * @dev The actual calculation is based on following but because of unsupporting decimals in solidity we remove the fee plot
+     *      uint delta_val = uint((_reserve1 * (2000 - FEE)) * 2) + (4 * (1000 - FEE) * (_amount * _reserve1));
+     *      actual_amount = ((UniMath.sqrt(delta_val)) - uint(_reserve1 *( 2000  - FEE))) / 2 * (1000 - FEE); 
+
      * @dev Calculates the optimal amount of tokens to swap in a Uniswap trade.
      * @dev This function will re-build with inline assembly, ASAP still has some vulnerability!  
-     * @param _amount The amount of tokens to swap.
-     * @param _reserve1 The reserve of the token being swapped.
+     * @param _amountA The amount of tokens to swap.
+     * @param _reserveA The reserve of the token being swapped.
      * @return actual_amount The actual amount of tokens to swap.
      */
-    function _getOptimalAmountForSwapFirstPair(uint _amount, uint _reserve1) internal pure returns(uint actual_amount) {
-        require(_amount != 0 && _reserve1 != 0, 'invalid inputs');
-        // We have : (1-f)s^2 + A(2-f)s - aA = 0  -> s=?
-        uint delta_val = uint((_reserve1 * (2000 - FEE)) * 2) + (4 * (1000 - FEE) * (_amount * _reserve1));
-        actual_amount = ((UniMath.sqrt(delta_val)) - uint(_reserve1 *( 2000  - FEE))) / 2 * (1000 - FEE);
+
+    function _getOptimalAmtAtoGetSwapAmtA(uint _amountA, uint _reserveA) public pure returns(uint) {
+        require(_reserveA * _amountA != 0, "invalid amount inserted");
+        uint delta_val = (2 * _reserveA) * (2 * _reserveA) + 4 * (_amountA * _reserveA);
+        uint amountAToSwap = uint(UniMath.sqrt(delta_val) - (2 * _reserveA)).div(2);
+        return amountAToSwap;
     }
 
 
-    function _getAmountOut(uint _reserve1, uint _reserve2, uint optimal_val) internal pure returns(uint _amountOut) {
+
+    /** NOTE: This function will calculate off-chain */
+    function _getAmountOut(uint _reserve1, uint _reserve2, uint optimal_val) 
+    public 
+    pure 
+    returns(uint _amountOut) {
         require(_reserve1 != 0 && _reserve2 != 0, 'invalid inputs');
-        uint first_cal = _reserve2*((1000-FEE)*optimal_val);
-        uint second_cal = _reserve1 + ((1000-FEE)*optimal_val);
+
+        uint first_cal = _reserve2 * optimal_val;
+        uint second_cal = _reserve1 * optimal_val;
 
         _amountOut = first_cal.div(second_cal);
     }
 
 
-    /** @dev Optimal value for input will calculate Off-chain */
+    
+    /** NOTE: Optimal value for input will calculate Off-chain
+     *  @dev This function calculate amount of Lp token to burn for remove Liquidity function
+             based on the min percentage of reserve tokens amount and desire amout to remove from liquidity pool
+
+     *  @param _amountA is desire amount of token A to remove from liquidity pool
+     *  @param _amountB is desire amount of token B to remove from liquidity pool
+     *  @param _reserveA is the reserve amount of token A inside pair contract
+     *  @param _reserveB is the reserve amount of token B inside pair contract
+      * @param _totalLpToken is the IUniswapV2Pair.balanceOf(msg.sender) inside pair contract
+    */
     function _calculateAmountOfLpTokenForBurn(uint _amountA, uint _amountB, uint _reserveA, uint _reserveB, uint _totalLpToken)
-    internal 
-    pure 
-    returns(uint willBurn) {
+    public 
+    pure
+    returns(uint result) {
         require(_amountA != 0 && _amountB != 0, "invalid inputs");
-        uint percentageA = (_amountA.div(_reserveA)).mul(100);
-        uint percentageB = (_amountB.div(_reserveB)).mul(100);
-        uint MinPercentage = (Math.min(percentageA, percentageB)).div(10); 
+        
+        uint percentageA = (_amountA.mul(100)).div(_reserveA); // 50
+        uint percentageB = ((_amountB.mul(100)).div(_reserveB)); // 40
+        uint MinPercentage = (Math.min(percentageA, percentageB)).div(10); // 4
         // e.g. 40% ~ 0.4 ~ 4(the MinPercentage valur for this example)
 
-        willBurn = _totalLpToken.div(MinPercentage);
+        result =  (_totalLpToken.mul(MinPercentage)).div(10);
     }
 
 
-    function oneSideAddingLiquiduty(address _token1, address _token2, uint _amout_for_token1) 
+
+
+    /**
+     * @dev oneSidedAddingLiquidity function for adding tokens in optimal amount without any remaining return
+     * @param _token1 is the address of Token A
+     * @param _token2 is the address if Token B
+     * @param _amount_token_for_add is the amount of X token assumed for adding to the liquidity
+     */
+    function oneSideAddingLiquiduty(address _token1, address _token2, uint _amount_token_for_add) 
     external
     nonReentrant()
-    amountAndTokensCheck(_token1, _token2, _amout_for_token1)
+    amountAndTokensCheck(_token1, _token2, _amount_token_for_add)
     returns(bool)  {
         address pair_ = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2);
         (uint reserve1_, uint reserve2_, ) = IUniswapV2Pair(pair_).getReserves();
 
         // defining which token will be add to pool
         uint swapOptimalAmount = IUniswapV2Pair(pair_).token0() == _token1 ? // TokenA -> TokenB
-            _getOptimalAmountForSwapFirstPair(_amout_for_token1, reserve1_) : // TokenB -> TokenA
-                _getOptimalAmountForSwapFirstPair(_amout_for_token1, reserve2_);
+            _getOptimalAmtAtoGetSwapAmtA(_amount_token_for_add, reserve1_) : // TokenB -> TokenA
+                _getOptimalAmtAtoGetSwapAmtA(_amount_token_for_add, reserve2_);
         
         uint amountOut = _getAmountOut(reserve1_, reserve2_, swapOptimalAmount);
         require(amountOut > 0, 'An error occured due _getAmountOut function');

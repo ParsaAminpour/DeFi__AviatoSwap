@@ -16,7 +16,7 @@ import { UniMath, UQ112x112 } from "./InternalMath.sol";
 import "./TokenA.sol";
 import "./TokenB.sol";
 
-contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
+contract Aviatoswap is Ownable, ReentrancyGuard{
     using SafeMath for uint;
     using Math for uint;
     using UniMath for uint;
@@ -34,7 +34,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     event logUint(string indexed _message, uint indexed calculated_result);
     event logTransfered(address indexed _from, address indexed _to, uint _amount);
     event logSwapped(address indexed _to, uint indexed _amount);
-    event logLiquidityAdded(uint indexed _amount1, uint indexed _amount2);
+    event logLiquidityAdded(uint indexed _amount1, uint indexed _amount2, uint indexed liqAmount);
 
     modifier amountAndTokensCheck(address _token1, address _token2, uint _amount1) {
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
@@ -77,6 +77,9 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     }
 
 
+
+
+
     /**
      * @dev Adds liquidity to a Uniswap pool with both tokens being added simultaneously.
      * @param _tokenA The address of token A.
@@ -99,17 +102,27 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
     ) public  nonReentrant() returns(uint amountA, uint amountB, uint liquidity) {
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
-        require(IERC20(_tokenA).allowance(msg.sender, address(this)) != 0);
-        require(IERC20(_tokenB).allowance(msg.sender, address(this)) != 0);
 
-        // Approving tokens to address(this) as spender to manage liquidity
-        bool result1 = IERC20(_tokenA).approve(address(this), amountA);
-        bool result2 = IERC20(_tokenB).approve(address(this), amountB);
-        require(result1 && result2, "Some error occured in approving");
 
         // Transfer tokens from the caller to the contract
-        IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
-        IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
+        try IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA) {
+            emit logTransfered(msg.sender, address(this), _amountA);
+
+        } catch Error(string memory _err) {
+            if(keccak256(bytes(_err)) == keccak256("Insufficient Allowance")) {
+                emit logTransfered(msg.sender, address(this), _amountA);
+            }
+        }
+
+
+        try IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB) {
+            emit logTransfered(msg.sender, address(this), _amountA);
+
+        } catch Error(string memory _err) {
+            if(keccak256(bytes(_err)) == keccak256("Insufficient Allowance")) {
+                emit logTransfered(msg.sender, address(this), _amountB);
+            }
+        }
 
         // Allowing the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
@@ -119,7 +132,10 @@ contract Aviatoswap is Ownable, ReentrancyGuard, TokenA{
         (amountA, amountB, liquidity) = IUniswapV2Router(UNISWAP_V2_ROUTER).addLiquidity(
             _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, block.timestamp + 10800
         );
+
+        emit logLiquidityAdded(amountA, amountB, liquidity);
     }
+
 
 
 

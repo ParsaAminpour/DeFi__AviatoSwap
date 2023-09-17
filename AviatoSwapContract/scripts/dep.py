@@ -1,7 +1,7 @@
 from brownie import accounts, TokenA, TokenB, Aviatoswap, web3
 from rich import print, print_json
 import time
-
+    
 def main():
     block = web3.eth.getBlock('latest')
     token1 = TokenA.deploy({'from':accounts[0]})

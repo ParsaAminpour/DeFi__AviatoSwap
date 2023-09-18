@@ -22,9 +22,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     using UniMath for uint;
 
 
-    address private immutable WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address private immutable DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address private immutable WBTC= 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
+    address private immutable WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
 
     address private constant UNISWAP_V2_ROUTER = 0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98;
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
@@ -35,6 +33,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     event logTransfered(address indexed _from, address indexed _to, uint _amount);
     event logSwapped(address indexed _to, uint indexed _amount);
     event logLiquidityAdded(uint indexed _amount1, uint indexed _amount2, uint indexed liqAmount);
+    event logError(string indexed _message, uint indexed _error_code);
 
     modifier amountAndTokensCheck(address _token1, address _token2, uint _amount1) {
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
@@ -59,11 +58,8 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         require(_first_pair != address(0) && _second_pair != address(0), "Invalid token pair address");
         require(_to != address(0), "Invalid destination address");
 
-        bool approved = IERC20(_first_pair).approve(address(this), _amountIn);
-
-        require(approved, "first pair token didnt approved from msg.sender to address(this)");
-
-        IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
+        // approval will accomplish off-chain
+        IERC20(_first_pair).transfer(address(this), _amountIn);
         IERC20(_first_pair).approve(UNISWAP_V2_ROUTER, _amountIn); // Allowing UNISWAPV2Router to swap tokens
 
         // based on UniswapV2 documentation
@@ -75,8 +71,6 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         IUniswapV2Router(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
             _amountIn, _amountOutMin, path, _to, block.timestamp + 10800);
     }
-
-
 
 
 
@@ -111,7 +105,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
         } catch Error(string memory _err) {
             if(keccak256(bytes(_err)) == keccak256("Insufficient Allowance")) {
-                emit logTransfered(msg.sender, address(this), _amountA);
+                emit logError("The transfer doesnt occure because of Insufficient Allowance", 403);
             }
         }
 
@@ -121,7 +115,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
         } catch Error(string memory _err) {
             if(keccak256(bytes(_err)) == keccak256("Insufficient Allowance")) {
-                emit logTransfered(msg.sender, address(this), _amountB);
+                emit logError("The transfer doesnt occure because of Insufficient Allowance", 403);
             }
         }
 
@@ -258,6 +252,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         // Senario No.2 : Whole Lp token will remove from liquidity pool:
         IERC20(pair).approve(UNISWAP_V2_ROUTER, liquidity_balance);
         (amount_back1, amount_back2) = IUniswapV2Router(UNISWAP_V2_ROUTER).removeLiquidity(_token1, _token2, liquidity_balance, 1, 1, msg.sender, block.timestamp + 10800);
+        assert(amount_back1 * amount_back2 != 0); // non of those amount back should be 0
     }
 
 }

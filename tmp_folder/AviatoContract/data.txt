@@ -1,6 +1,0 @@
-ir...done
-peer identity: 12D3KooWLHtnEiC2TsD9C1rEBxidqRAuaQijgjijxGWhhxKmMErD
-initializing IPFS node at /home/jonathan/.ipfs
-Error: ipfs configuration file already exists!
-Reinitializing would overwrite your keys.
-

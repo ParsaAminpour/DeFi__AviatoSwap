@@ -1,0 +1,1 @@
+brownie test -v -s --coverage --network mainnet-fork

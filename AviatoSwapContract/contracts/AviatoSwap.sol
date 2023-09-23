@@ -24,8 +24,8 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
     address private immutable WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
 
-    address private constant UNISWAP_V2_ROUTER = 0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98;
-    address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // in mainnet-fork
+    address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f; // in mainnet-fork
 
     uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3%
 
@@ -73,7 +73,6 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     }
 
 
-
     /**
      * @dev Adds liquidity to a Uniswap pool with both tokens being added simultaneously.
      * @param _tokenA The address of token A.
@@ -97,28 +96,8 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
 
-        // Approving operations will occur off-chain
-
-        // Transfer tokens from the caller to the contract
-        try IERC20(_tokenA).transfer(address(this), _amountA) {
-            emit logTransfered(msg.sender, address(this), _amountA);
-
-        } catch Error(string memory _err) {
-            if(keccak256(bytes(_err)) == keccak256("Insufficient Allowance")) {
-                emit logError("The transfer doesnt occure because of Insufficient Allowance", 403);
-            }
-        }
-
-
-        try IERC20(_tokenB).transfer(address(this), _amountB) {
-            emit logTransfered(msg.sender, address(this), _amountA);
-
-        } catch Error(string memory _err) {
-            if(keccak256(bytes(_err)) == keccak256("Insufficient Allowance")) {
-                emit logError("The transfer doesnt occure because of Insufficient Allowance", 403);
-            }
-        }
-
+        IERC20(_tokenA).transfer(address(this), _amountA);
+        IERC20(_tokenB).transfer(address(this), _amountB);
         // Allowing the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);

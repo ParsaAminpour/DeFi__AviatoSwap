@@ -22,7 +22,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     using UniMath for uint;
 
 
-    address private immutable WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // in mainnet-fork
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f; // in mainnet-fork
@@ -112,14 +112,15 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     }
 
 
+
     function getLiquidityBalanceOfPairs(address _token1, address _token2) 
     public  
     returns(uint _reserve1, uint _reserve2, uint _liq_balance) {
         require(_token1 != address(0) && _token2 != address(0), "invalid address inserted");
         
         address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2);
-        require(IUniswapV2Pair(pair).token0() == _token1 && IUniswapV2Pair(pair).token1() == _token2, 
-            "Some error occured in pair section");
+        // require(IUniswapV2Pair(pair).token0() == _token2 && IUniswapV2Pair(pair).token1() == _token1, 
+        //     "Some error occured in pair section");
         
         (uint res1_balance, uint res2_balance, ) = IUniswapV2Pair(pair).getReserves();
         uint liquidity_token_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
@@ -127,6 +128,8 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         emit LogBalance(res1_balance, res2_balance, liquidity_token_balance);
         (_reserve1, _reserve2, _liq_balance) = (res1_balance, res2_balance, liquidity_token_balance);
     }
+
+
 
 
     /**
@@ -229,25 +232,33 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     returns(uint amount_back1, uint amount_back2) {
         // get pair
         address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2); 
-        require(IUniswapV2Pair(pair).token0() == _token1 && IUniswapV2Pair(pair).token1() == _token2, 
-            "Some error occured in pair section");
+        // require(IUniswapV2Pair(pair).token0() == _token1 && IUniswapV2Pair(pair).token1() == _token2, 
+        //     "Some error occured in pair section");
 
         (uint _reserve1, uint _reserve2, ) = IUniswapV2Pair(pair).getReserves();
-        uint liquidity_balance = IUniswapV2Pair(pair).balanceOf(address(this));
+        uint liquidity_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
 
         // senario No.1 : not whole Lp tokens:
         if(_reserve1.add(_reserve2) != _amount1.add(_amount2)) {
             uint LpAmountForBurn = _calculateAmountOfLpTokenForBurn(_amount1, _amount2, _reserve1, _reserve2, liquidity_balance);
+            emit logUint("Lp token amount clculated by internal function", LpAmountForBurn);
+
+            emit LogBalance(_reserve1, _reserve2, LpAmountForBurn);
+
             require(LpAmountForBurn < liquidity_balance, "Something went wrong in removeLiquidity");
 
-            IERC20(pair).approve(UNISWAP_V2_ROUTER, LpAmountForBurn);
-            (amount_back1, amount_back2) = IUniswapV2Router(UNISWAP_V2_ROUTER).removeLiquidity(_token1, _token2, LpAmountForBurn, 1, 1, msg.sender, block.timestamp + 10800); 
+
+            // The bug is due to this approval section that throw (ds-math-sub-underflow) error
+            // IERC20(pair).approve(UNISWAP_V2_ROUTER, liquidity_balance); // approving will opperate oof-chain
+            (amount_back1, amount_back2) = IUniswapV2Router(UNISWAP_V2_ROUTER).removeLiquidity(
+                _token1, _token2, LpAmountForBurn, 1, 1, msg.sender, block.timestamp + 10800); 
         }
 
         // Senario No.2 : Whole Lp token will remove from liquidity pool:
         IERC20(pair).approve(UNISWAP_V2_ROUTER, liquidity_balance);
-        (amount_back1, amount_back2) = IUniswapV2Router(UNISWAP_V2_ROUTER).removeLiquidity(_token1, _token2, liquidity_balance, 1, 1, msg.sender, block.timestamp + 10800);
+        (amount_back1, amount_back2) = IUniswapV2Router(UNISWAP_V2_ROUTER).removeLiquidity(
+            _token1, _token2, liquidity_balance, 1, 1, msg.sender, block.timestamp + 10800);
+
         assert(amount_back1 * amount_back2 != 0); // non of those amount back should be 0
     }
-
 }

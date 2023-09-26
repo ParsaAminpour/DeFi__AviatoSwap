@@ -22,7 +22,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     using UniMath for uint;
 
 
-    address private immutable WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
+    address private immutable WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // in mainnet-fork
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f; // in mainnet-fork
@@ -59,7 +59,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         require(_to != address(0), "Invalid destination address");
 
         // approval will accomplish off-chain
-        IERC20(_first_pair).transfer(address(this), _amountIn);
+        IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
         IERC20(_first_pair).approve(UNISWAP_V2_ROUTER, _amountIn); // Allowing UNISWAPV2Router to swap tokens
 
         // based on UniswapV2 documentation
@@ -96,8 +96,8 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
         require(_to != address(0), "Invalid destination address");
 
-        IERC20(_tokenA).transfer(address(this), _amountA);
-        IERC20(_tokenB).transfer(address(this), _amountB);
+        IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
+        IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
         // Allowing the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);

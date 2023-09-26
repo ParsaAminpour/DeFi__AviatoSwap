@@ -34,6 +34,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     event logSwapped(address indexed _to, uint indexed _amount);
     event logLiquidityAdded(uint indexed _amount1, uint indexed _amount2, uint indexed liqAmount);
     event logError(string indexed _message, uint indexed _error_code);
+    event LogBalance(uint indexed BalanceOfReserve1, uint indexed BalanceOfReserve2, uint indexed BalanceOfLiquidityToken);
 
     modifier amountAndTokensCheck(address _token1, address _token2, uint _amount1) {
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
@@ -111,6 +112,21 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     }
 
 
+    function getLiquidityBalanceOfPairs(address _token1, address _token2) 
+    public  
+    returns(uint _reserve1, uint _reserve2, uint _liq_balance) {
+        require(_token1 != address(0) && _token2 != address(0), "invalid address inserted");
+        
+        address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2);
+        require(IUniswapV2Pair(pair).token0() == _token1 && IUniswapV2Pair(pair).token1() == _token2, 
+            "Some error occured in pair section");
+        
+        (uint res1_balance, uint res2_balance, ) = IUniswapV2Pair(pair).getReserves();
+        uint liquidity_token_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
+
+        emit LogBalance(res1_balance, res2_balance, liquidity_token_balance);
+        (_reserve1, _reserve2, _liq_balance) = (res1_balance, res2_balance, liquidity_token_balance);
+    }
 
 
     /**

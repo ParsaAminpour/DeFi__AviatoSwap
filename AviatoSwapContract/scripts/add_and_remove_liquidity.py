@@ -106,15 +106,17 @@ def main():
         if reserves_and_liq_balance[2] != liq_amount_to_remove: # note whole liquidity token balance
             pair_token.approve(router_addr, reserves_and_liq_balance[2], {'from':acc})
 
-            remove_liq_tx = swap.removingLiquidity(
-                token1.address, token2.address, token1_amount_for_remove, token2_amount_for_remove
+            remove_liq_tx = interface.IUniswapV2Router(router_addr).removeLiquidity(
+                token1.address, token2.address, liq_amount_to_remove, 1, 1, acc, block.timestamp + 10800,
+                    {'from':acc}
             )
             time.sleep(3)
 
         else:
             pair_token.approve(router_addr, reserves_and_liq_balance[2], {'from':acc})
-            remove_liq_tx = swap.removingLiquidity(
-                token1.address, token2.address, token1_amount_for_remove, token2_amount_for_remove
+            remove_liq_tx = interface.IUniswapV2Router(router_addr).removeLiquidity(
+                token1.address, token2.address, liq_amount_to_remove, 1, 1, acc, block.timestamp + 10800,
+                    {'from':acc}
             )
             time.sleep(3)
 
@@ -125,10 +127,9 @@ def main():
                 Remove Liquidity occured and the new amounts are:\n
                 The reserve1 amount => {new_reserves[0]} | {new_reserves[0].to('ether')}\n
                 The reserve2 amount => {new_reserves[1]} | {new_reserves[1].to('ether')}\n
-                And the {acc[:5]}... address liquidity balance is => {new_liq_token_balance} | {new_liq_token_balance.to('ether')}\n\n
+                And the {acc.address[:5]}... address liquidity balance is => {new_liq_token_balance} | {new_liq_token_balance / 1e18}\n
               """)
 
-        print(remove_liq_tx.info())
     
     except VirtualMachineError:
         print(f"[bold red] {remove_liq_tx.revert_msg} [/bold red]")

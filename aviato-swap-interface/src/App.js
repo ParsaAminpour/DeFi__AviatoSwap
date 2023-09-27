@@ -1,16 +1,34 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component, useState, useEffect } from 'react';
 
-class App extends Component {
-  render() {
-    return (
-      <div>
-        <AviatoSwapTitle version_number={2} />
-        <SwapSection />
-      </div>
-    )
+
+function App() {
+
+  const [wallet, setWallet] = useState("0x0");
+  
+  const connectingToWallet = () => {
+    useEffect(() => {
+      console.log("Ethereum wallet is connecting...");
+
+      return () => {
+        console.log("Component has just been unmounted");
+      }
+    }, []);
+
+    useEffect(() => {
+      console.log("Ethereum wallet address has just been changed");
+    }, [wallet])
+
+    if(window.ethereum && wallet === "0x0") {
+      setWallet(window.ethereum.enable().then(resolve => setWallet(resolve)))
+    }
   }
+
+  return (
+    <div>
+      <AviatoSwapTitle version_number={2} />
+      <SwapSection />
+    </div>
+  )
 }
 
 const AviatoSwapTitle = (props) => {

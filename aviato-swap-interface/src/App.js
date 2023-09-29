@@ -1,49 +1,30 @@
-import React, { Component, useState, useEffect } from 'react';
-
+import "./App.css";
+import Header from "./components/Header";
+import Swap from "./components/Swap";
+import Tokens from "./components/Tokens";
+import { Routes, Route } from "react-router-dom";
+import { useConnect, useAccount } from "wagmi";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 
 function App() {
-
-  const [wallet, setWallet] = useState("0x0");
-  
-  const connectingToWallet = () => {
-    useEffect(() => {
-      console.log("Ethereum wallet is connecting...");
-
-      return () => {
-        console.log("Component has just been unmounted");
-      }
-    }, []);
-
-    useEffect(() => {
-      console.log("Ethereum wallet address has just been changed");
-    }, [wallet])
-
-    if(window.ethereum && wallet === "0x0") {
-      setWallet(window.ethereum.enable().then(resolve => setWallet(resolve)))
-    }
-  }
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect({
+    connector: new MetaMaskConnector(),
+  });
 
   return (
-    <div>
-      <AviatoSwapTitle version_number={2} />
-      <SwapSection />
+
+    <div className="App">
+      <Header connect={connect} isConnected={isConnected} address={address} />
+      <div className="mainWindow">
+        <Routes>
+          <Route path="/" element={<Swap isConnected={isConnected} address={address} />} />
+          <Route path="/tokens" element={<Tokens />} />
+        </Routes>
+      </div>
+
     </div>
   )
 }
-
-const AviatoSwapTitle = (props) => {
-  return (
-    <h1> <center> Aviato Swap { props.version_number } </center></h1>
-  )
-}
-
-const SwapSection = (props) => {
-  return(
-    <div className='Swap'>
-      <input type="text"></input> <br /><br />
-      <button type='submit'> Swap </button>
-    </div>
-  )
-} 
 
 export default App;

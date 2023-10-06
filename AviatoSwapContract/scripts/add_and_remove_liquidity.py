@@ -69,8 +69,10 @@ def main():
           pairs are:\n{get_balances_tx.events}\n\n")
 
     
-    
 
+    #######################################
+    #       Remove Liquidity
+    #######################################
 
 
     # Remove liquidity after adding to the liquidity pool

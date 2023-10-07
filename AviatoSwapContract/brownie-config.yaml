@@ -4,7 +4,7 @@ dependencies:
   - Uniswap/uniswap-v2-core@1.0.1
   - uniswap/v2-periphery@1.0.0-beta.0
 
-compiler:
+compiler: 
   solc:
     remappings:
       - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.9.2'

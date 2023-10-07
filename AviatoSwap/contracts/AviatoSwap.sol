@@ -224,10 +224,10 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         assert(liq_ != 0);
         return true;
     }
-
+    
 
     function removingLiquidity(address _token1, address _token2, uint _amount1, uint _amount2)
-    external
+    external 
     nonReentrant()
     returns(uint amount_back1, uint amount_back2) {
         // get pair

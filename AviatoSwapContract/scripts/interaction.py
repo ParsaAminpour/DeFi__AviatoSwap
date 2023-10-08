@@ -58,8 +58,29 @@ def deploy():
     tx1 = swap._bothSideAddingLiquidity(
         token1.address, token2.address, 1e20, 1e20, acc, block.timestamp + 10800
     )
+    tx1.wait(1)
+    
+    factory_addr = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+    pair_addr = interface.IUniswapV2Factory(factory_addr).getPair(token1.address, token2.address)
+    pair_token = interface.IERC20(pair_addr)
 
-    print(tx1.events)
+    res = interface.IUniswapV2Pair(pair_addr).getReserves()
+    
+    lp_balance = interface.IUniswapV2Pair(pair_addr).balanceOf(acc)
+    lp_amount = swap._calculateAmountOfLpTokenForBurn(1e19, 1e19, res[0], res[1], lp_balance)
+    print(f"lp amount to burn is {lp_amount}\nand lp balance is {lp_balance}")
+
+    router_addr = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+
+
+    print("lets approcing")
+    pair_token.approve(router_addr, lp_balance - 1e18, {'from':acc})
+
+    print("lets removing liquidity")
+    tx2 = swap.removingLiquidity(
+        token1.address, token2.address, 1e19, 1e19, {'from':acc}
+    )
+    print(tx2.events)
 
 
 def main():

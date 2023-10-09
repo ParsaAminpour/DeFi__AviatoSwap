@@ -52,11 +52,13 @@ def main():
 
 
     ############## SWAP TOKENS ##############
-    
+    router01_address = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"
     print(f"The current token1 balance for acc is {token1.balanceOf(acc).to('ether')}\nWhich is greater than 1e19 {token1.balanceOf(acc) > 1e19}")
-    token1.approve(swap.address, 1e19, {'from':acc})
+    token1.approve(swap.address, token1.balanceOf(acc), {'from':acc})
+    print(f"The allowance amount for swap is {token1.allowance(acc, swap.address)}")
+    time.sleep(2)
+
     tx2 = swap.swapping(
-        token1.address, token2.address, 1e19, 1, accounts[0]
+        token1.address, token2.address, 1e19, 1, accounts[0], {'from':accounts[0]}
     )
-    tx2.wait()
-    print(tx2.error())
+    tx2.wait(1)

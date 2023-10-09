@@ -45,7 +45,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
         require(_amount1 != 0, 'invalid amount for swao');
         _;
-    }
+    }   
 
 
 
@@ -144,15 +144,20 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
      */
     function swapping(address _first_pair, address _second_pair, uint _amountIn, uint _amountOutMin, address _to) 
         public 
-        amountAndTokensCheck(_first_pair, _second_pair, _amountIn)
         nonReentrant()
     {
         require(_first_pair != address(0) && _second_pair != address(0), "Invalid token pair address");
         require(_to != address(0), "Invalid destination address");
 
+
+        require(IERC20(_first_pair).allowance(msg.sender, address(this)) >= _amountIn, "Insufficient allowance for aviato swap");
         // approval will accomplish off-chain
         IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
-        IERC20(_first_pair).approve(UNISWAP_V2_ROUTER01, _amountIn); // Allowing UNISWAPV2Router to swap tokens
+
+        // The caller of this part is address(this)
+        IERC20(_first_pair).approve(UNISWAP_V2_ROUTER01, _amountIn); // Allowing UNISWAPV2Router01 to swap tokens
+        require(IERC20(_first_pair).allowance(address(this), UNISWAP_V2_ROUTER01) == _amountIn, "allowance for unisawp_router_01 is not provided");
+
 
         // based on UniswapV2 documentation
         address[] memory path = new address[](3);
@@ -160,8 +165,9 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         path[1] = WETH; // considered as swap bridge
         path[2] = _second_pair;
 
+        // In this part, the caller is address(this)
         IUniswapV2Router01(UNISWAP_V2_ROUTER01).swapExactTokensForTokens(
-            _amountIn, _amountOutMin, path, _to, block.timestamp + 10800);
+            _amountIn, _amountOutMin, path, _to, block.timestamp);
     }
 
 
@@ -182,7 +188,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         address _tokenB,
         uint _amountA,
         uint _amountB,
-        address _to,
+        address _to,    
         uint _death_time
     ) public  nonReentrant() returns(uint amountA, uint amountB, uint liquidity) {
         require(_death_time >= block.timestamp && _amountB != 0, "Invalid death time or amount B");
@@ -191,12 +197,12 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
         IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
         // Allowing the Uniswap router to spend the transferred tokens
-        IERC20(_tokenA).approve(UNISWAP_V2_ROUTER, _amountA);
-        IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);
+        IERC20(_tokenA).approve(UNISWAP_V2_ROUTER01, _amountA);
+        IERC20(_tokenB).approve(UNISWAP_V2_ROUTER01, _amountB);
 
         // Add liquidity to the pool using the Uniswap router
-        (amountA, amountB, liquidity) = IUniswapV2Router01(UNISWAP_V2_ROUTER).addLiquidity(
-            _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, block.timestamp + 10800
+        (amountA, amountB, liquidity) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).addLiquidity(
+            _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, block.timestamp
         );
 
         emit logLiquidityAdded(amountA, amountB, liquidity);

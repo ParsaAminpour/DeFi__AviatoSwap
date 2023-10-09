@@ -5,7 +5,7 @@ fee = 0.003;
 
 def calculate_just_amount_out_via_amount_in(amount_in:int, reserve1:int, reserve2:int):
     # Equation format is -> dy = ((dx * f) * Y) / ((dx * f) + X)
-    amountOut = ((amount_in * (1 - Fee)) * reserve2) / ((amount_in * (1 - Fee)) * reserve1)
+    amountOut = ((amount_in * (1 - fee)) * reserve2) / ((amount_in * (1 - fee)) * reserve1)
     return amountOut
 
 def calculate_optimal_amount_for_adding_liquidity(amount_we_hace:int, reserve1:int, reserve2:int):

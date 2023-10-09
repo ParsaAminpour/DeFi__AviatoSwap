@@ -9,9 +9,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 // import "@uniswap-periphery/contracts/interfaces/IUniswapV2Router01.sol";
-import "../interfaces/IUniswapV2Router02.sol";
+// import "../interfaces/IUniswapV2Router.sol";
 import '@uniswap/contracts/interfaces/IUniswapV2Factory.sol';
 // import "@uniswap/contracts/libraries/UQ112x112.sol";
+import "@uniswap-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import '@uniswap/contracts/interfaces/IUniswapV2Pair.sol';
 // import { IUniswapV2Router } from "../interfaces/IUniswap.sol";
 import { UniMath, UQ112x112 } from "./InternalMath.sol";
@@ -26,6 +27,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
     address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
+    address private constant UNISWAP_V2_ROUTER01 = 0xf164fC0Ec4E93095b804a4795bBe1e041497b92a;
     address private constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // in mainnet-fork
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f; // in mainnet-fork
 
@@ -37,6 +39,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
     event logLiquidityAdded(uint indexed _amount1, uint indexed _amount2, uint indexed liqAmount);
     event logError(string indexed _message, uint indexed _error_code);
     event LogBalance(uint indexed BalanceOfReserve1, uint indexed BalanceOfReserve2, uint indexed BalanceOfLiquidityToken);
+    event LogAllowance(uint indexed allowance);
 
     modifier amountAndTokensCheck(address _token1, address _token2, uint _amount1) {
         require(_token1 != address(0) && _token2 != address(0), 'invalid token address');
@@ -46,9 +49,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
 
 
-
-
-
+    /** NOTE: this function is temporary function */
     function getLiquidityBalanceOfPairs(address _token1, address _token2) 
     public  
     returns(uint _reserve1, uint _reserve2, uint _liq_balance) {
@@ -133,9 +134,6 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
 
 
-
-
-
     /**
      * @dev Swaps tokens on the Uniswap decentralized exchange.
      * @param _first_pair The address of the first token pair to swap.
@@ -154,7 +152,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
         // approval will accomplish off-chain
         IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
-        IERC20(_first_pair).approve(UNISWAP_V2_ROUTER, _amountIn); // Allowing UNISWAPV2Router to swap tokens
+        IERC20(_first_pair).approve(UNISWAP_V2_ROUTER01, _amountIn); // Allowing UNISWAPV2Router to swap tokens
 
         // based on UniswapV2 documentation
         address[] memory path = new address[](3);
@@ -162,7 +160,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         path[1] = WETH; // considered as swap bridge
         path[2] = _second_pair;
 
-        IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
+        IUniswapV2Router01(UNISWAP_V2_ROUTER01).swapExactTokensForTokens(
             _amountIn, _amountOutMin, path, _to, block.timestamp + 10800);
     }
 
@@ -197,7 +195,7 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER, _amountB);
 
         // Add liquidity to the pool using the Uniswap router
-        (amountA, amountB, liquidity) = IUniswapV2Router02(UNISWAP_V2_ROUTER).addLiquidity(
+        (amountA, amountB, liquidity) = IUniswapV2Router01(UNISWAP_V2_ROUTER).addLiquidity(
             _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, block.timestamp + 10800
         );
 
@@ -248,27 +246,26 @@ contract Aviatoswap is Ownable, ReentrancyGuard{
 
         (uint _reserve1, uint _reserve2, ) = IUniswapV2Pair(pair).getReserves(); // timestamp exist in 3nd arg
         uint liquidity_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
-        require(IUniswapV2Pair(pair).allowance(msg.sender, UNISWAP_V2_ROUTER) > 0, "Allowance is zero");
 
+        emit LogAllowance(IUniswapV2Pair(pair).allowance(msg.sender, UNISWAP_V2_ROUTER));
         // senario No.1 : not whole Lp tokens:
         if(_reserve1.add(_reserve2) != _amount1.add(_amount2)) {
             uint LpAmountForBurn = _calculateAmountOfLpTokenForBurn(_amount1, _amount2, _reserve1, _reserve2, liquidity_balance);
+            require(IUniswapV2Pair(pair).allowance(msg.sender, pair) >= LpAmountForBurn, "Allowance amount is less than lp_amount for burn");
+            require(liquidity_balance >= LpAmountForBurn, "Something went wrong in removeLiquidity");
 
             emit logUint("Lp token amount clculated by internal function", LpAmountForBurn);
             emit LogBalance(_reserve1, _reserve2, liquidity_balance);
 
-            require(liquidity_balance >= LpAmountForBurn, "Something went wrong in removeLiquidity");
-            require(IUniswapV2Pair(pair).allowance(msg.sender, address(this)) >= LpAmountForBurn, "Insufficient allowance");
             // The bug is due to this approval section that throw (ds-math-sub-underflow) error
-            // IERC20(pair).approve(UNISWAP_V2_ROUTER, liquidity_balance); // approving will opperate off-chain
-            (amount_back1, amount_back2) = IUniswapV2Router02(UNISWAP_V2_ROUTER).removeLiquidity(
-                _token1, _token2, LpAmountForBurn, 1, 1, msg.sender, block.timestamp); 
+            (amount_back1, amount_back2) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).removeLiquidity(
+                _token1, _token2, 9 * 1e18, 1, 1, msg.sender, block.timestamp + 3600); 
         }   
 
-        // Senario No.2 : Whole Lp token will remove from liquidity pool:
-        // IERC20(pair).approve(UNISWAP_V2_ROUTER, liquidity_balance); // approving will accomplish off-chain for gas issue
-        (amount_back1, amount_back2) = IUniswapV2Router02(UNISWAP_V2_ROUTER).removeLiquidity(
-            _token1, _token2, liquidity_balance, 1, 1, msg.sender, block.timestamp);
+        // Senario No.2 : Whole Lp token will burn from liquidity pool:
+        require(IUniswapV2Pair(pair).allowance(msg.sender, pair) == liquidity_balance, "Allowance is not equal to liquidity balance for burning whole liquidity tokens");
+        (amount_back1, amount_back2) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).removeLiquidity(
+            _token1, _token2, liquidity_balance, 1, 1, msg.sender, block.timestamp + 3600);
 
         assert(amount_back1 * amount_back2 != 0); // non of those amount back should be 0
     }

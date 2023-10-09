@@ -20,11 +20,13 @@ def getReservesOffChain(owner:str, token1_addr:str, token2_addr:str):
     return reserves
 
 
+
 def main():
     global addr1, addr2, router_addr
 
     block = web3.eth.get_block('latest')
-    acc = accounts.add(config.get('wallets').get('from_key'))
+    # acc = accounts.add(config.get('wallets').get('from_key'))
+    acc = accounts[0]
     print(f"The account is: {acc.address}\n ")
     time.sleep(2)
 
@@ -52,6 +54,7 @@ def main():
             addr1, addr2, 1e20, 1e20, acc, block.timestamp + 10800,
             {'from':acc}
         )
+        print(tx.error())
 
         print("after add liquidity transaction..")
         time.sleep(2)

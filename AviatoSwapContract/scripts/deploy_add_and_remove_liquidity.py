@@ -50,11 +50,13 @@ def main():
 
     if(token1.allowance(acc, swap.address) * token2.allowance(acc, swap.address) != 0):
         print('transaction is pending:')
+        time.sleep(2)
         tx = swap._bothSideAddingLiquidity(
             addr1, addr2, 1e20, 1e20, acc, block.timestamp + 10800,
-            {'from':acc}
+            {'from':acc, 'allow_revert':True}
         )
-        tx.wait()
+        tx.wait(1)
+        print(tx.events)
 
         print("after add liquidity transaction..")
         time.sleep(2)
@@ -108,8 +110,8 @@ def main():
         pair_token = interface.IERC20(pair_addr)
         router_addr = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
         # approving operations:
-        if reserves_and_liq_balance[2] != liq_amount_to_remove: # note whole liquidity token balance
-            pair_token.approve(router_addr, reserves_and_liq_balance[2], {'from':acc})
+        if reserves_and_liq_balance[2] != liq_amount_to_remove: # not whole liquidity token balance
+            pair_token.approve(router_addr, liq_amount_to_remove, {'from':acc})
 
             remove_liq_tx = interface.IUniswapV2Router(router_addr).removeLiquidity(
                 token1.address, token2.address, liq_amount_to_remove, 1, 1, acc, block.timestamp + 10800,

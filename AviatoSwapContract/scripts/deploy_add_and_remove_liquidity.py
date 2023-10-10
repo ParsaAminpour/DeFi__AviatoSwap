@@ -26,7 +26,7 @@ def main():
 
     block = web3.eth.get_block('latest')
     # acc = accounts.add(config.get('wallets').get('from_key'))
-    acc = accounts[0]
+    acc = accounts.add(config.get('wallets').get('from_key'))
     print(f"The account is: {acc.address}\n ")
     time.sleep(2)
 
@@ -54,7 +54,7 @@ def main():
             addr1, addr2, 1e20, 1e20, acc, block.timestamp + 10800,
             {'from':acc}
         )
-        print(tx.error())
+        tx.wait()
 
         print("after add liquidity transaction..")
         time.sleep(2)

@@ -68,26 +68,27 @@ def deploy(acc):
             progress.update(add_liquidity_task, completed=1)
 
             
-            factory_addr = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
-            pair_addr = interface.IUniswapV2Factory(factory_addr).getPair(token1.address, token2.address)
-            pair_token = interface.IERC20(pair_addr)
+    factory_addr = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+    pair_addr = interface.IUniswapV2Factory(factory_addr).getPair(token1.address, token2.address)
 
-            res = interface.IUniswapV2Pair(pair_addr).getReserves()
-            lp_balance = interface.IUniswapV2Pair(pair_addr).balanceOf(acc)
+    pair_token = interface.IERC20(pair_addr)
 
-            print(Panel.fit(f"""
-            The reserves amount for token1 and token2 are\n
-            [bold green]
-                Reserve1 : {res[0]} => {res[0].to('ether')} TokenA\n
-                Reserve2 : {res[1]} => {res[1].to('ether')} TokenB
-            [/]\n
-            The pair token address is: [purple]{pair_token.address}[/]\n
-            And the liquidity token balance for this liquidity pair is\n
-            [bold green]
-                {lp_balance} => {lp_balance.to('ether')} Lp token
-            [/]
-            """, title="Liquidty Pool Data"))
-            print("\n\n")
+    res = interface.IUniswapV2Pair(pair_addr).getReserves()
+    lp_balance = interface.IUniswapV2Pair(pair_addr).balanceOf(acc)
+
+    print(Panel.fit(f"""
+    The reserves amount for token1 and token2 are\n
+    [bold green]
+        Reserve1 : {res[0]} => {res[0].to('ether')} TokenA\n
+        Reserve2 : {res[1]} => {res[1].to('ether')} TokenB
+    [/]\n
+    The pair token address is: [purple]{pair_token.address}[/]\n
+    And the liquidity token balance for this liquidity pair is\n
+    [bold green]
+        {lp_balance} => {lp_balance.to('ether')} Lp token
+    [/]
+    """, title="Liquidty Pool Data"))
+    print("\n\n")
 
 
     ########### REMOVE LIQUIDITY ###########
@@ -119,20 +120,21 @@ def deploy(acc):
             remove_liq_tx.wait(1)
             progress.update(remove_liquidity, completed=3)
 
-            new_res = interface.IUniswapV2Pair(pair_addr).getReserves()
-            new_lp_balance = pair_token.balanceOf(acc)
 
-            print(Panel.fit(f"""
-            The new reserves amount for token1 and token2 are\n
-            [bold green]
-                Reserve1 : {new_res[0]} => {new_res[0].to('ether')} TokenA\n
-                Reserve2 : {new_res[1]} => {new_res[1].to('ether')} TokenB
-            [/]\n
-            And the liquidity token balance for this liquidity pair is\n
-            [bold green]
-                {new_lp_balance} => {new_lp_balance.to('ether')} Lp token
-            [/]
-            """, title="Liquidty Pool Data after removing 10% of liquidity"))
+    new_res = interface.IUniswapV2Pair(pair_addr).getReserves()
+    new_lp_balance = pair_token.balanceOf(acc)
+    print(Panel.fit(f"""
+    The Optimal amount for removing was: [red]{optimal_lp_amount_to_burn.to('ether')}[/]\n
+    The new reserves amount for token1 and token2 are\n
+    [bold green]
+        Reserve1 : {new_res[0]} => {new_res[0].to('ether')} TokenA\n
+        Reserve2 : {new_res[1]} => {new_res[1].to('ether')} TokenB
+    [/]\n
+    And the liquidity token balance for this liquidity pair is\n
+    [bold green]
+        {new_lp_balance} => {new_lp_balance.to('ether')} Lp token
+    [/]
+    """, title="Liquidty Pool Data after removing 10% of liquidity"))
 
 
 

@@ -16,13 +16,12 @@ import { UniMath, UQ112x112 } from "./InternalMath.sol";
 import "./TokenA.sol";
 import "./TokenB.sol";
 
-contract Aviatoswap is ReentrancyGuard, Ownable{
+contract AviatoswapV2 is ReentrancyGuard, Ownable{
     using SafeMath for uint;
     using Math for uint;
     using UniMath for uint;
 
     bool private initialized = false; // for Proxy contract logic
-    uint private init_count = 0;
 
     address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address private constant UNISWAP_V2_ROUTER01 = 0xf164fC0Ec4E93095b804a4795bBe1e041497b92a;
@@ -45,13 +44,11 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
         _;
     }   
 
-
+    
     function initialize() external payable onlyOwner {
         require(initialized == false, "Contract has initialized once before");
-        require(init_count < 3, "This contract just could upgrade twice");
         transferOwnership(msg.sender); // To Proxy Admin address which is a DAO protocol
         initialized = true;   
-        init_count ++;
     }
 
 

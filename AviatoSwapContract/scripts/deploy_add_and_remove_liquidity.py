@@ -11,6 +11,7 @@ from brownie import TokenA, TokenB, Aviatoswap
 from brownie import interface
 from brownie.exceptions import VirtualMachineError
 import time
+import json
 install()
 
 theme = Theme({
@@ -21,7 +22,7 @@ console = Console(theme=theme)
 UNISWAP_V2_ROUTER01 = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"
 factory_addr = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
 
-def deploy(acc):
+def deploy(acc) -> json:
     print(f"The account is: {acc.address}\n ")
     time.sleep(1)
     block = web3.eth.get_block('latest')
@@ -167,6 +168,10 @@ def deploy(acc):
     [/]
     """, title="Liquidty Pool Data after removing 10% of liquidity"))
 
+    return json.dumps({
+        'contract_address' : swap.address,
+        'contract_owner' : swap.owner(),
+    })
 
 
 def main():
@@ -175,4 +180,5 @@ def main():
     account = accounts[0] if network_selected == 'mainnet-fork' \
         else config.get('wallets').get('from_key')
     print(f"The network is {network.show_active()}")
-    deploy(acc=account)
+    data = deploy(acc=account)
+    return data

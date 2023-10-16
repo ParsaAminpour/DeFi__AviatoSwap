@@ -46,7 +46,7 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
     }   
 
 
-    function initialize() external payable onlyOwner {
+    function initialize() external payable {
         require(initialized == false, "Contract has initialized once before");
         require(init_count < 3, "This contract just could upgrade twice");
         transferOwnership(msg.sender); // To Proxy Admin address which is a DAO protocol

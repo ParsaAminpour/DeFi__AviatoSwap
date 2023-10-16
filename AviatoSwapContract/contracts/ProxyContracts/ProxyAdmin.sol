@@ -53,7 +53,7 @@ contract ProxyAdmin is Ownable {
     }
 
     /**
-     * @dev Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-upgradeTo}.
+     * @dev Upgrades `proxy` to `implementation(new implementation)`. See {TransparentUpgradeableProxy-upgradeTo}.
      *
      * Requirements:
      *

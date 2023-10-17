@@ -224,7 +224,7 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
         // Add liquidity to the pool using the Uniswap router
         (amountA, amountB, liquidity) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).addLiquidity(
-            _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, block.timestamp + 10800
+            _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, deathtime
         );
 
         emit logLiquidityAdded(amountA, amountB, liquidity);

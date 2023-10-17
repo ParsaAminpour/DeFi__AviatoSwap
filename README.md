@@ -71,8 +71,8 @@ or, if you are using Yarn:
 
 
 ## Screenshots
+![AviatoSwapContractDiagram](https://github.com/ParsaAminpour/Aviato-Swap/assets/77713904/141f258b-bb80-4035-8c4a-02909696ab6d)
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
 
 
 ## Deployment
@@ -92,7 +92,10 @@ brownie run scripts/ProxyScripts/deploy_upgradeable_contract_preprations.py
 
 
 ## Here is a Demo for this script:
-Demo:
+https://github.com/ParsaAminpour/Aviato-Swap/assets/77713904/b0e6bc12-a0c4-403f-afe3-43a99321ed8a
+
+
+
 ## Authors
 
 - [@ParsaAminpour](https://www.github.com/ParsaAminpour)

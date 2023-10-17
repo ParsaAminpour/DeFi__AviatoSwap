@@ -16,6 +16,11 @@ import { UniMath, UQ112x112 } from "./InternalMath.sol";
 import "./TokenA.sol";
 import "./TokenB.sol";
 
+/**
+    @title The AviatoSwapV1 Project is a Decentralized exchange which will work based on UniswapV2 architecture
+        And the AviatoSwapV2 as a upgradeable part of this project will work based on UniswapV3 architecture (for future...)
+    @author is Parsa Aminpour
+*/
 contract Aviatoswap is ReentrancyGuard, Ownable{
     using SafeMath for uint;
     using Math for uint;
@@ -45,7 +50,10 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
         _;
     }   
 
-
+    /**
+    @dev this function will use in upgrading section of project to update
+        the status of project as updated or vise versa
+    */
     function initialize() external payable {
         require(initialized == false, "Contract has initialized once before");
         require(init_count < 3, "This contract just could upgrade twice");
@@ -98,7 +106,13 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
 
 
-    /** NOTE: This function will calculate off-chain */
+    /** 
+      NOTE: This function will calculate off-chain 
+    * @param _reserve1 is the reserve amount for pool belong a specific pair
+    * @param _reserve2 is the reserve amount for pool belong a specific pair
+    * @param optimal_val is the optimal amount for one-sided adding liquidity
+    * @return _amountOut which is the result of calculation based on constatn reserve ration in swap architecture
+    */
     function _getAmountOut(uint _reserve1, uint _reserve2, uint optimal_val) 
     public 
     pure 
@@ -121,7 +135,8 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
      *  @param _amountB is desire amount of token B to remove from liquidity pool
      *  @param _reserveA is the reserve amount of token A inside pair contract
      *  @param _reserveB is the reserve amount of token B inside pair contract
-      * @param _totalLpToken is the IUniswapV2Pair.balanceOf(msg.sender) inside pair contract
+     *  @param _totalLpToken is the IUniswapV2Pair.balanceOf(msg.sender) inside pair contract
+     * @return result which is the optimal amount for 
     */
     function _calculateAmountOfLpTokenForBurn(uint _amountA, uint _amountB, uint _reserveA, uint _reserveB, uint _totalLpToken)
     public 
@@ -141,6 +156,8 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
 
     /**
+     * NOTE: The bugs belong this function hasn't been solved yet, It won't work!
+        I will fix this part ASAP.  
      * @dev Swaps tokens on the Uniswap decentralized exchange.
      * @param _first_pair The address of the first token pair to swap.
      * @param _second_pair The address of the second token pair to swap.
@@ -244,7 +261,15 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
         return true;
     }
 
-
+    /**
+     * @dev Remove liquidity should be run after both-sided or on-sided adding liquidity.
+     * @param _token1 The address of token A.
+     * @param _token2 The address of token B.
+     * @param _amount1 The amount of token A to add.
+     * @param _amount2 The amount of token B to add.
+     * @return amount_back1 The actual amount of token A which is remained after removing liquidity. 
+     * @return amount_back2 The actual amount of token B which is remained after removing liquidity. 
+     */
     function removingLiquidity(address _token1, address _token2, uint _amount1, uint _amount2)
     external
     nonReentrant()

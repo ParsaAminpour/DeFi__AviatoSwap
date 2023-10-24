@@ -12,7 +12,7 @@ import "@uniswap-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import '@uniswap/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/contracts/interfaces/IUniswapV2Pair.sol';
 // import { IUniswapV2Router } from "../interfaces/IUniswap.sol";
-import { UniMath, UQ112x112 } from "./InternalMath.sol";
+import { UniMath } from "./InternalMath.sol";
 import "./TokenA.sol";
 import "./TokenB.sol";
 

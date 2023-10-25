@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // Access Control libraries
 
@@ -18,7 +19,7 @@ import { UniMath } from "./InternalMath.sol";
         And the AviatoSwapV2 as a upgradeable part of this project will work based on UniswapV3 architecture (for future...)
     @author is Parsa Aminpour
 */
-contract AviatoswapV2 is ReentrancyGuard, Ownable{
+contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     using SafeMath for uint;
     using Math for uint;
     using UniMath for uint;
@@ -27,12 +28,25 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
     address private constant UNISWAP_V2_ROUTER01 = 0xf164fC0Ec4E93095b804a4795bBe1e041497b92a;
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f; // in mainnet-fork
 
+    // pre-calculate keccak256("LIQUIDITY_PROVIDER") off-chain
+    bytes32 private constant LIQUIDITY_PROVIDER_ROLE = 0xf4bff5b507dec16e54f7365ca3d82370290609650d2e573391f4d08fc9171fd5;
+    
     uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3% | 0.3% with 18 decimal places
 
     bool private initialized; // for Proxy contract logic
+    bool public check_new_roles; // This is a flag for checking new roles off-chain
     uint8 private init_count; // declared at least cuz it will change frequently
 
+    struct LiquidityShareOfUser {
+        uint amount_pair1;
+        uint amount_pair2;
+    }
+    mapping(address => LiquidityShareOfUser) public map_shares;
+    // mapping(address => bool) public isProvider;
 
+    /**
+    * @dev these logs should be remove in main project, these are here just for providing more details in deploying
+    */
     event logUint(string indexed _message, uint indexed calculated_result);
     event logTransfered(address indexed _from, address indexed _to, uint _amount);
     event logSwapped(address indexed _to, uint indexed _amount);
@@ -40,18 +54,26 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
     event logError(string indexed _message, uint indexed _error_code);
     event LogBalance(uint indexed BalanceOfReserve1, uint indexed BalanceOfReserve2, uint indexed BalanceOfLiquidityToken);
     event LogAllowance(uint indexed allowance);
+    event LogAddress(address indexed caller);
 
 
     /**
-    @dev this function will use in upgrading section of project to update
+        @dev this function will use in upgrading section of project to update
         the status of project as updated or vise versa
+        @dev Only Admins (a DAO) could call this function.
     */
-    function initialize() external payable {
+    function initialize() external payable onlyRole(DEFAULT_ADMIN_ROLE){
         require(initialized == false, "Contract has initialized once before");
         require(init_count < 3, "This contract just could upgrade twice");
         transferOwnership(msg.sender); // To Proxy Admin address which is a DAO protocol
         initialized = true;   
         init_count ++; // will remove
+    }
+
+    constructor() {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        admin = msg.sender;
+        _setupRole(DEFAULT_ADMIN_ROLE, address(this));
     }
 
 
@@ -68,7 +90,6 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
      * @param _reserveA The reserve of the token being swapped.
      * @return actual_amount The actual amount of tokens to swap.
      */
-
     function _getOptimalAmtAtoGetSwapAmtA(uint _amountA, uint _reserveA) internal pure returns(uint) {
         require(_reserveA * _amountA != 0, "invalid amount inserted");
         uint delta_val = (2 * _reserveA) * (2 * _reserveA) + 4 * (_amountA * _reserveA);
@@ -93,8 +114,9 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
 
         uint first_cal = _reserve2 * optimal_val;
         uint second_cal = _reserve1 * optimal_val;
-
-        _amountOut = first_cal.div(second_cal);
+        unchecked {
+            _amountOut = first_cal.div(second_cal);   
+        }
     }
 
 
@@ -121,7 +143,9 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
         uint MinPercentage = (Math.min(percentageA, percentageB)).div(10); // 4
         // e.g. 40% ~ 0.4 ~ 4(the MinPercentage valur for this example)
 
-        result =  (_totalLpToken.mul(MinPercentage)).div(10);
+        unchecked {
+            result =  (_totalLpToken.mul(MinPercentage)).div(10);   
+        }
     }
 
 
@@ -187,7 +211,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
         require(amountOut > 0, 'An error occured due _getAmountOut function');
 
         swapping(_token1, _token2, swapOptimalAmount, 1, msg.sender);
-        (uint a_, uint b_, uint liq_) = _bothSideAddingLiquidity(_token1, _token2, swapOptimalAmount, amountOut, msg.sender, block.timestamp + 10800);
+        (uint a_, uint b_, uint liq_) = _bothSideAddingLiquidity(msg.sender, _token1, _token2, swapOptimalAmount, amountOut, msg.sender, block.timestamp + 10800);
         assert(a_ != 0 && b_ != 0);
         assert(liq_ != 0);
         return true;
@@ -202,6 +226,24 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
 
 
 
+
+    /**
+    * @dev the variance calculation will calculate off-chain
+    * @dev will calculate off-chain based on a bunch of liquidity balances belong to that pair address.
+    * NOTE: If the amount inserted by user was mroe than the variance and average area,
+        The LIQUIDITY_PROVIDER_ROLE privilage will granting.
+    */
+    function _calculationDesiration(uint liq_balance, uint variance, uint average_point) 
+    internal
+    pure
+    returns(bool desired) {
+        if (liq_balance >= average_point + variance ) {
+            desired = true;
+        }
+        desired = false;
+    } 
+
+
     /**
      * @dev Adds liquidity to a Uniswap pool with both tokens being added simultaneously.
      * @param _tokenA The address of token A.
@@ -214,15 +256,17 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
      * @return liquidity The amount of liquidity tokens received.
      */
     function _bothSideAddingLiquidity(
+        address _from,
         address _tokenA,
         address _tokenB,
         uint _amountA,
         uint _amountB,
         address _to,
         uint _deathtime
-    ) public  
+    ) internal  
     nonReentrant() 
     returns(uint amountA, uint amountB, uint liquidity) {
+
         require(_tokenA != address(0) || _tokenB != address(0), "invalid address as input");
         require(_amountA * _amountB != 0, "amounts should not be zero");
         require(_deathtime >= block.timestamp, "invalid deathtime as input");
@@ -239,9 +283,39 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
             _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, _deathtime
         );
 
+        require(amountA * amountB != 0, "Some error occured in addliquidity function");
+        emit LogAddress(msg.sender);
+
+        if(!hasRole(LIQUIDITY_PROVIDER_ROLE, _from)) {
+            LiquidityShareOfUser memory share = LiquidityShareOfUser(_amountA, _amountB);
+            map_shares[_from] = share;
+            this.grantRole(LIQUIDITY_PROVIDER_ROLE, _from);
+        } 
+        else {
+            map_shares[_from].amount_pair1 += _amountA;
+            map_shares[_from].amount_pair2 += _amountB;
+        }
+
         emit logLiquidityAdded(amountA, amountB, liquidity);
     }
 
+    function bothSideAddingLiquidity(address _tokenA, address _tokenB, uint _amountA, uint _amountB, address _to, uint _deathtime) public {
+        _bothSideAddingLiquidity(msg.sender, _tokenA, _tokenB, _amountA, _amountB, _to, _deathtime);
+    }
+
+
+    /**
+    NOTE: the input parameter will depends on off-chain db e.g. IPFS
+    */
+    function performGrantRole(address[10] calldata new_roles) 
+    public 
+    onlyRole(DEFAULT_ADMIN_ROLE) {
+        // After address processing and validation off-chain
+        require(check_new_roles, "It's not the time");
+        for (uint i; i < new_roles.length; i++) {
+            grantRole(LIQUIDITY_PROVIDER_ROLE, new_roles[i]);
+        }
+    }
 
     /**
      * @dev Remove liquidity should be run after both-sided or on-sided adding liquidity.
@@ -255,9 +329,12 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable{
     function removingLiquidity(address _token1, address _token2, uint _amount1, uint _amount2)
     public
     nonReentrant()
+    onlyRole(LIQUIDITY_PROVIDER_ROLE)
     returns(uint amount_back1, uint amount_back2) {
         require(_token1 != address(0) && _token2 != address(0), "invalid address as input");
         require(_amount1 * _amount2 != 0, "amounts should not be zero");
+
+        require(hasRole(LIQUIDITY_PROVIDER_ROLE, msg.sender), "Sender has not permitted to remove liquidity");
 
         // get pair
         address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2); 

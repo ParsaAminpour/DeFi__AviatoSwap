@@ -20,6 +20,26 @@ library UniMath {
         }
     }
 
+    function average(uint[] calldata numbers) public pure returns (uint) {
+
+        uint sum = 0;
+        uint count = numbers.length;    
+        for (uint i = 0; i < count; i++) {
+          sum += numbers[i];
+        }   
+
+        uint avg;
+
+        // Use assembly to compute average
+        assembly {
+          mstore(0x0, sum)
+          mstore(0x20, count)
+          avg := sdiv(mload(0x0), mload(0x20))
+        }   
+        return avg;
+    }
+
+
     /** @dev This function will re-build with inline assembly, ASAP
              still has some vulnerability! */  
     // function _getOptimalAmountForSwapFirstPair(uint _amount, uint _reserve1) internal pure returns(uint actual_amount) {

@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // Access Control libraries
-
 import "@uniswap-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import '@uniswap/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/contracts/interfaces/IUniswapV2Pair.sol';
@@ -28,21 +27,22 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     address private constant UNISWAP_V2_ROUTER01 = 0xf164fC0Ec4E93095b804a4795bBe1e041497b92a;
     address private constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f; // in mainnet-fork
 
-    // pre-calculate keccak256("LIQUIDITY_PROVIDER") off-chain
+    // pre-calculate keccak256("LIQUIDITY_PROVIDER") AND keccak256("admin") off-chain
     bytes32 private constant LIQUIDITY_PROVIDER_ROLE = 0xf4bff5b507dec16e54f7365ca3d82370290609650d2e573391f4d08fc9171fd5;
-    
+    bytes32 private constant ADMIN = 0x41444d494e000000000000000000000000000000000000000000000000000000;
+
     uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3% | 0.3% with 18 decimal places
 
     bool private initialized; // for Proxy contract logic
     bool public check_new_roles; // This is a flag for checking new roles off-chain
     uint8 private init_count; // declared at least cuz it will change frequently
 
-    struct LiquidityShareOfUser {
-        uint amount_pair1;
-        uint amount_pair2;
+    struct pair_state {
+        uint average;
+        uint variance;
+        uint count;
     }
-    mapping(address => LiquidityShareOfUser) public map_shares;
-    // mapping(address => bool) public isProvider;
+    mapping(address => pair_state) public variance_map; // pair => current_variance
 
     /**
     * @dev these logs should be remove in main project, these are here just for providing more details in deploying
@@ -72,7 +72,6 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        admin = msg.sender;
         _setupRole(DEFAULT_ADMIN_ROLE, address(this));
     }
 
@@ -218,14 +217,6 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     }
 
 
-    // modifier _check_amounts_and_addresses(address pair1, address pair2, uint amount1, uint amount2) {
-    //     require(pair1 != address(0) && pair2 != address(0), "invalid address as input");
-    //     require(amount1 * amount2 != 0, "amounts should not be zero");
-    //     _;
-    // }
-
-
-
 
     /**
     * @dev the variance calculation will calculate off-chain
@@ -233,15 +224,22 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     * NOTE: If the amount inserted by user was mroe than the variance and average area,
         The LIQUIDITY_PROVIDER_ROLE privilage will granting.
     */
-    function _calculationDesiration(uint liq_balance, uint variance, uint average_point) 
-    internal
-    pure
-    returns(bool desired) {
-        if (liq_balance >= average_point + variance ) {
-            desired = true;
-        }
-        desired = false;
-    } 
+    function update_variance(address _pair, uint _new_liq) private {
+        pair_state memory state = variance_map[_pair];
+
+        uint new_average = ((state.average).mul(state.count) + _new_liq).div(
+            state.count + 1);
+
+        uint diff = (new_average - _new_liq) ** 2;
+        variance_map[_pair].average = new_average;
+
+        // addind a propier number   for calculate new_variance based on ex-variance rather that calculate variance with a bunch of numbers (gas efficient)
+        variance_map[_pair].variance = UniMath.sqrt(uint((state.variance).mul(state.count) + diff).div(
+            state.count+1));
+
+        variance_map[_pair].count ++;
+    }
+
 
 
     /**
@@ -283,39 +281,39 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
             _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, _deathtime
         );
 
+        address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_tokenA, _tokenB);
+        uint lp_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
+
+        require(address(pair) != address(0), "Adding liquidity encounterd to some problem");
         require(amountA * amountB != 0, "Some error occured in addliquidity function");
+        
         emit LogAddress(msg.sender);
 
-        if(!hasRole(LIQUIDITY_PROVIDER_ROLE, _from)) {
-            LiquidityShareOfUser memory share = LiquidityShareOfUser(_amountA, _amountB);
-            map_shares[_from] = share;
+        if(!hasRole(LIQUIDITY_PROVIDER_ROLE, _from)) { // This is the first adding liquidity of this msg.sender
+            // shares_map created for using during calculation the variance of liq balances belong providers
+            update_variance(pair, lp_balance);
+            if(lp_balance >= variance_map[pair].average + variance_map[pair].variance) {
+                this.grantRole(LIQUIDITY_PROVIDER_ROLE, _from);
+                this.grantRole(ADMIN, _from);
+            }
+
             this.grantRole(LIQUIDITY_PROVIDER_ROLE, _from);
-        } 
+        }
+
         else {
-            map_shares[_from].amount_pair1 += _amountA;
-            map_shares[_from].amount_pair2 += _amountB;
+            update_variance(pair, lp_balance);
+            this.grantRole(LIQUIDITY_PROVIDER_ROLE, _from);
         }
 
         emit logLiquidityAdded(amountA, amountB, liquidity);
     }
+
 
     function bothSideAddingLiquidity(address _tokenA, address _tokenB, uint _amountA, uint _amountB, address _to, uint _deathtime) public {
         _bothSideAddingLiquidity(msg.sender, _tokenA, _tokenB, _amountA, _amountB, _to, _deathtime);
     }
 
 
-    /**
-    NOTE: the input parameter will depends on off-chain db e.g. IPFS
-    */
-    function performGrantRole(address[10] calldata new_roles) 
-    public 
-    onlyRole(DEFAULT_ADMIN_ROLE) {
-        // After address processing and validation off-chain
-        require(check_new_roles, "It's not the time");
-        for (uint i; i < new_roles.length; i++) {
-            grantRole(LIQUIDITY_PROVIDER_ROLE, new_roles[i]);
-        }
-    }
 
     /**
      * @dev Remove liquidity should be run after both-sided or on-sided adding liquidity.

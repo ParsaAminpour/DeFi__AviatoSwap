@@ -7,7 +7,7 @@ from rich.theme import Theme
 from rich.progress import Progress
 from rich import print
 from brownie import *
-from brownie import TokenA, TokenB, AviatoswapV2
+from brownie import TokenA, TokenB, AviatoswapV2, Aviatoswap
 from brownie import interface
 from brownie.exceptions import VirtualMachineError
 import time
@@ -46,7 +46,7 @@ def deploy(acc) -> json:
             progress.update(tokens_task, completed=3)
 
 
-            swap = AviatoswapV2.deploy({'from':acc})  
+            swap = Aviatoswap.deploy({'from':acc})  
             progress.update(swap_task, completed=1)
             
             # console.print(f"The balances are:\nToken1: {token1.balanceOf(acc)}\nToken2: {token2.balanceOf(acc)}\n\n")

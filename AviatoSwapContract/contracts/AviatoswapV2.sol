@@ -211,8 +211,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
 
         swapping(_token1, _token2, swapOptimalAmount, 1, msg.sender);
         (uint a_, uint b_, uint liq_) = _bothSideAddingLiquidity(msg.sender, _token1, _token2, swapOptimalAmount, amountOut, msg.sender, block.timestamp + 10800);
-        assert(a_ != 0 && b_ != 0);
-        assert(liq_ != 0);
+        require(a_ * b_ != 0, "Some error occurred in addLiquidity output");
         return true;
     }
 
@@ -277,7 +276,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER01, _amountB);
 
         // Add liquidity to the pool using the Uniswap router
-        (amountA, amountB, liquidity) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).addLiquidity(
+        (_amountA, _amountB, _liquidity) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).addLiquidity(
             _tokenA, _tokenB, _amountA, _amountB, 1, 1, _to, _deathtime
         );
 
@@ -306,6 +305,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
         }
 
         emit logLiquidityAdded(amountA, amountB, liquidity);
+        (uint amountA, uint amountB, uint liquidity) = (_amountA, _amountB, _liquidity);
     }
 
 

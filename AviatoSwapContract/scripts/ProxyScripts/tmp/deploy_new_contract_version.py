@@ -14,7 +14,7 @@ from brownie import Contract
 from brownie import interface
 from brownie.exceptions import VirtualMachineError
 
-from deploy_upgradeable_contract_preprations import upgrade_contract, prepare_v2_contract
+from scripts.ProxyScripts.deploy_upgradeable_contract import upgrade_contract, prepare_v2_contract
 import json
 import time
 install()

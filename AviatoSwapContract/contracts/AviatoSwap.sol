@@ -157,7 +157,8 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
     /**
      * NOTE: The bugs belong this function hasn't been solved yet, It won't work!
-        I will fix this part ASAP.  
+        I will fix this part ASAP. -> It won't solve until use the propier interface (which brownie doesn't support)
+         
      * @dev Swaps tokens on the Uniswap decentralized exchange.
      * @param _first_pair The address of the first token pair to swap.
      * @param _second_pair The address of the second token pair to swap.

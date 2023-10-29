@@ -5,9 +5,9 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.theme import Theme
 from rich.progress import Progress
-from rich import print
+from rich import print, print_json
 from brownie import *
-from brownie import TokenA, TokenB, Aviatoswap,\
+from brownie import TokenA, TokenB, AviatoswapV2,\
     ProxyAdmin, TransparentUpgradeableProxy 
 from brownie import AviatoswapV2
 from brownie import Contract
@@ -138,7 +138,68 @@ def deploy_new_version(swap_deployed_addr:str, contract_owner:str, version_num:i
         print("""
             New contract deployed successfuly
                     """)
-        
+    
+def add_liquidity_swap_v2():
+    acc = accounts[0]
+    print(f"The account is: {acc.address}\n ")
+    time.sleep(1)
+
+    block = web3.eth.get_block('latest')
+
+    with Progress() as progress:
+
+        tokens_task = progress.add_task("Deploying Tokens...", total=3)
+        swap_task = progress.add_task("Deploying Swap...", total=2)
+        approval_task = progress.add_task("Approving to swap...", total=2)
+        add_liquidity_task = progress.add_task("Adding Liquidity...", total=1)
+
+        while not progress.finished:
+            token1 = TokenA[-1]
+            print(token1.address)
+            progress.update(tokens_task, completed=1)
+
+            token2 = TokenB[-1]
+            print(token2.address)
+            progress.update(tokens_task, completed=2)
+            
+            addr1 = token1.address
+            addr2 = token2.address
+            time.sleep(1)
+            progress.update(tokens_task, completed=3)
+
+
+            swap = AviatoswapV2[-1]
+            progress.update(swap_task, completed=1)
+            
+            # console.print(f"The balances are:\nToken1: {token1.balanceOf(acc)}\nToken2: {token2.balanceOf(acc)}\n\n")
+            time.sleep(1)
+            progress.update(swap_task, completed=2)
+
+            # approving:
+            token1.approve(swap.address, 1e20, {'from':acc})
+            time.sleep(1)
+            progress.update(approval_task, completed=1)
+
+            token2.approve(swap.address, 1e20, {'from':acc})
+            time.sleep(1)
+            progress.update(approval_task, completed=2)
+            
+
+            ##### ADD LIQUIDITY (R01) #####
+            tx = swap.bothSideAddingLiquidity(
+                addr1, addr2, 1e20, 1e20, acc, block.timestamp + 10800, 
+                {'from':acc})
+            tx.wait(1)
+            progress.update(add_liquidity_task, completed=1)
+
+            # Roles
+            LIQUIDITY_PROVIDER_ROLE = "0xf4bff5b507dec16e54f7365ca3d82370290609650d2e573391f4d08fc9171fd5";
+            ADMIN = "0x41444d494e000000000000000000000000000000000000000000000000000000";
+
+            print(tx.events)
+            print("\n\n\n")
+            print(f"account has liquidity ROLES -> {swap.hasRole(LIQUIDITY_PROVIDER_ROLE, acc)}")
+            print(f"account has admin ROLE -> {swap.hasRole(ADMIN, acc)}")
 
 def main():
     response = json.loads(add_liq_main())
@@ -176,3 +237,8 @@ def main():
 
     [bold green]And AviatoSwapV2 address is : {aviatoswapv2.address}
     [/]"""))    
+
+    add_liquidity_ask = Prompt.ask("Do you want to accomplish addliquidity process for V2 contract?",
+                              default="No", choices=['Yes', 'No'])
+    if add_liquidity_ask == 'Yes':
+        add_liquidity_swap_v2()

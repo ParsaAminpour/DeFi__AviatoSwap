@@ -121,7 +121,14 @@ def deploy(acc) -> json:
     print("\n\n")
 
 
+    
+    ########### SWAP SECTION ###########
+    # with Progress() as progress:
+    #     check_liquidity = progress.add_task("Checking liquidity pool...", total=2)
+    #     swapping = progress.add_task('Swapping...', total=3)
 
+    #     while not progress.finished:
+    #         pass
 
     ########### REMOVE LIQUIDITY ###########
     with Progress() as progress:

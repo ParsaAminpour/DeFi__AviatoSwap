@@ -36,6 +36,7 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
     uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3%
 
+    event LogNumber(uint indexed _number);
     event logUint(string indexed _message, uint indexed calculated_result);
     event logTransfered(address indexed _from, address indexed _to, uint _amount);
     event logSwapped(address indexed _to, uint indexed _amount);
@@ -154,7 +155,6 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
 
 
-
     /**
      * NOTE: The bugs belong this function hasn't been solved yet, It won't work!
         I will fix this part ASAP.  
@@ -172,15 +172,13 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
         require(_first_pair != address(0) && _second_pair != address(0), "Invalid token pair address");
         require(_to != address(0), "Invalid destination address");
 
-
-        require(IERC20(_first_pair).allowance(msg.sender, address(this)) >= _amountIn, "Insufficient allowance for aviato swap");
+        emit LogNumber(1);
         // approval will accomplish off-chain
         IERC20(_first_pair).transferFrom(msg.sender, address(this), _amountIn);
+        emit LogNumber(2);
 
-        // The caller of this part is address(this)
         IERC20(_first_pair).approve(UNISWAP_V2_ROUTER01, _amountIn); // Allowing UNISWAPV2Router01 to swap tokens
-        require(IERC20(_first_pair).allowance(address(this), UNISWAP_V2_ROUTER01) == _amountIn, "allowance for unisawp_router_01 is not provided");
-
+        emit LogNumber(3);
 
         // based on UniswapV2 documentation
         address[] memory path = new address[](3);
@@ -191,6 +189,8 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
         // In this part, the caller is address(this)
         IUniswapV2Router01(UNISWAP_V2_ROUTER01).swapExactTokensForTokens(
             _amountIn, _amountOutMin, path, _to, block.timestamp);
+        
+        emit LogNumber(4);
     }
 
 
@@ -218,6 +218,7 @@ contract Aviatoswap is ReentrancyGuard, Ownable{
 
         IERC20(_tokenA).transferFrom(msg.sender, address(this), _amountA);
         IERC20(_tokenB).transferFrom(msg.sender, address(this), _amountB);
+
         // Allowing the Uniswap router to spend the transferred tokens
         IERC20(_tokenA).approve(UNISWAP_V2_ROUTER01, _amountA);
         IERC20(_tokenB).approve(UNISWAP_V2_ROUTER01, _amountB);

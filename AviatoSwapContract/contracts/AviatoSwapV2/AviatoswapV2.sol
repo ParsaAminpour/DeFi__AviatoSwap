@@ -7,11 +7,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// import "@openzeppelin/contracts/utils/types/Time.sol";
+
 // Access Control libraries
 import "@uniswap-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import '@uniswap/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/contracts/interfaces/IUniswapV2Pair.sol';
-import { UniMath } from "./InternalMath.sol";
+import { UniMath } from "../InternalMath.sol";
 
 /**
     @title The AviatoSwapV1 Project is a Decentralized exchange which will work based on UniswapV2 architecture
@@ -337,15 +339,17 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
      * @return amount_back1 The actual amount of token A which is remained after removing liquidity. 
      * @return amount_back2 The actual amount of token B which is remained after removing liquidity. 
      */
-    function _removingLiquidity(address _from, address _token1, address _token2, uint _amount1, uint _amount2)
-    internal
+    function _removingLiquidity(address _token1, address _token2, uint _amount1, uint _amount2)
+    external
     nonReentrant()
-    onlyRoleByAddress(LIQUIDITY_PROVIDER_ROLE, _from)
+    onlyRoleByAddress(LIQUIDITY_PROVIDER_ROLE, msg.sender)
     returns(uint amount_back1, uint amount_back2) {
+
         require(_token1 != address(0) && _token2 != address(0), "invalid address as input");
         require(_amount1 * _amount2 != 0, "amounts should not be zero");
 
-        require(hasRole(LIQUIDITY_PROVIDER_ROLE, _from), "Sender has not permitted to remove liquidity");
+        require(hasRole(LIQUIDITY_PROVIDER_ROLE, msg.sender), "Sender has not permitted to remove liquidity");
+
 
         // get pair
         address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2); 
@@ -353,49 +357,53 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
             "The pair tokens' address didn't match with addresses in input");
 
         (uint _reserve1, uint _reserve2, ) = IUniswapV2Pair(pair).getReserves(); // timestamp exist in 3nd arg
-        uint liquidity_balance = IUniswapV2Pair(pair).balanceOf(_from);
+        uint liquidity_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
         require(liquidity_balance != 0, "Liquidity has not been added yet");
 
-        emit LogAllowance(IUniswapV2Pair(pair).allowance(_from, UNISWAP_V2_ROUTER01));
+        // emit LogAllowance(IUniswapV2Pair(pair).allowance(_from, UNISWAP_V2_ROUTER01));
 
         uint LpAmountForBurn = _calculateAmountOfLpTokenForBurn(_amount1, _amount2, _reserve1, _reserve2, liquidity_balance);
         require(liquidity_balance >= LpAmountForBurn, "Something went wrong in removeLiquidity");
-        // require(IUniswapV2Pair(pair).allowance(msg.sender, pair) >= LpAmountForBurn, "Allowance amount is less than lp_amount for burn");        
         
 
+        uint new_liq_balance;
         // senario No.1 : not whole Lp tokens:
         if(_reserve1.add(_reserve2) != _amount1.add(_amount2)) {
-            emit logUint("Lp token amount clculated by internal function", LpAmountForBurn);
-            emit LogBalance(_reserve1, _reserve2, liquidity_balance);
+            // emit logUint("Lp token amount clculated by internal function", LpAmountForBurn);
+            // emit LogBalance(_reserve1, _reserve2, liquidity_balance);
 
-            /** @dev The bug is due to this approval section that throw (ds-math-sub-underflow) error
-                * @dev The approving section will accomplish off-chain
+            /** 
+            *   @dev The bug is due to this approval section that throw (ds-math-sub-underflow) error
+            *   @dev The approving section will accomplish off-chain
             */ 
             (amount_back1, amount_back2) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).removeLiquidity(
-                    _token1, _token2, LpAmountForBurn, 1, 1, _from, block.timestamp + 3600); 
+                    _token1, _token2, LpAmountForBurn, 1, 1, msg.sender, block.timestamp + 3600); 
             
-            uint new_liq_balance = IUniswapV2Pair(pair).balanceOf(_from);
-            if(this._check_liq_balance_for_revoke_role(pair, new_liq_balance)) {
-                this.revokeRole(ADMIN, _from);
+            new_liq_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
+            if(_check_liq_balance_for_revoke_role(pair, new_liq_balance)) {
+                this.revokeRole(ADMIN, msg.sender);
             }
-        }   
 
-
+        } 
         // Senario No.2 : Whole Lp token will burn from liquidity pool:
         // require(IUniswapV2Pair(pair).allowance(msg.sender, pair) == liquidity_balance, "Allowance is not equal to liquidity balance for burning whole liquidity tokens");
         (amount_back1, amount_back2) = IUniswapV2Router01(UNISWAP_V2_ROUTER01).removeLiquidity(
-            _token1, _token2, liquidity_balance, 1, 1, _from, block.timestamp + 3600);
-        
-        if(this._check_liq_balance_for_revoke_role(pair, new_liq_balance)) {
-            this.revokeRole(ADMIN, _from);
+            _token1, _token2, liquidity_balance, 1, 1, msg.sender, block.timestamp + 3600);
+
+        new_liq_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
+        if(_check_liq_balance_for_revoke_role(pair, new_liq_balance)) {
+            this.revokeRole(ADMIN, msg.sender);
         }
 
         require(amount_back1 * amount_back2 != 0, "Some error occured in amount back"); // non of those amount back should be 0 (require is not necessary in here)
     }
 
-    function removeLiquidity(address _from, address _token1, address _token2, uint _amount1, uint _amount2) 
-    public {
-        require(_from != address(0), "invalid caller address");
-        _removingLiquidity(_from, _token1, _token2, _amount1, _amount2);
-    }
+    /**
+    *   @dev stack too deep error will occurr if we want to set _from as an input for removeLiquidity internal function
+    */
+    // function removeLiquidity(address _from, address _token1, address _token2, uint _amount1, uint _amount2) 
+    // public {
+    //     require(_from != address(0), "invalid caller address");
+    //     _removingLiquidity(_token1, _token2, _amount1, _amount2);
+    // }
 }

@@ -5,6 +5,7 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.theme import Theme
 from rich.progress import Progress
+from rich.markdown import Markdown
 from rich import print, print_json
 from brownie import *
 from brownie import TokenA, TokenB, AviatoswapV2,\
@@ -17,6 +18,7 @@ from ..deploy_add_and_remove_liquidity import main as add_liq_main
 import json
 import time
 install()
+console = Console()
 
 block = web3.eth.get_block('latest')
 
@@ -29,7 +31,7 @@ def prepare_v2_contract(swap_deployed_address:str, owner:str) -> json:
         prepare_proxy_contracts = progress.add_task("Preparing Proxy Contracts...", total=3)
 
         while not progress.finished:
-            deployed_swap = Aviatoswap[-1]
+            deployed_swap = Aviatoswap[-1] #V1
             time.sleep(2)
 
             if deployed_swap.address == swap_deployed_address and deployed_swap.owner() == owner:
@@ -49,7 +51,7 @@ def prepare_v2_contract(swap_deployed_address:str, owner:str) -> json:
                     deployed_swap.address, proxy_admin, b'', {'from':owner, 'gas_limmit':1e6})
                 progress.update(prepare_proxy_contracts, completed=2)
 
-                proxy_contract = Contract.from_abi("Aviatoswap", proxy.address, Aviatoswap.abi)
+                proxy_contract = Contract.from_abi("Aviatoswap", proxy.address, deployed_swap.abi)
                 progress.update(prepare_proxy_contracts, completed=3)
 
                 data = json.dumps({
@@ -201,6 +203,13 @@ def add_liquidity_swap_v2():
             print(f"account has liquidity ROLES -> {swap.hasRole(LIQUIDITY_PROVIDER_ROLE, acc)}")
             print(f"account has admin ROLE -> {swap.hasRole(ADMIN, acc)}")
 
+
+
+
+
+
+
+
 def main():
     response = json.loads(add_liq_main())
     print(response, sep='\n\n')
@@ -209,7 +218,11 @@ def main():
         response.get('contract_address'), response.get('contract_owner')))
     print(response2, sep='\n\n')
 
-
+    with open("deployed_addresses.txt", "w") as file:
+        file.write(f"AviatoSwapV1 address -> {response.get('contract_address')}\n")
+        file.write(f"AviatoSwapV1 owner address -> {response.get('contract_owner')}\n")
+        file.write(f"The ProxyAdmin is -> {response2.get('proxy_admin')}\n")
+        file.write(f"The Proxy Contract is -> {response2.get('proxy_contract')}\n")
 
     upgrading_ask = Prompt.ask("Are you sure you want to upgrade your contract?",
                               default="No", choices=['Yes', 'No'])
@@ -220,6 +233,15 @@ def main():
                           response3.get('proxy_addr'),
                           response3.get('abi'))
         
+
+    with open("deployed_addresses.txt", "w") as file:
+        file.write(f"AviatoSwapV1 address -> {response.get('contract_address')}\n")
+        file.write(f"AviatoSwapV1 owner address -> {response.get('contract_owner')}\n")
+        file.write(f"The ProxyAdmin is -> {response2.get('proxy_admin')}\n")
+        file.write(f"The Proxy Contract is -> {response2.get('proxy_contract')}\n")
+        file.write(f"The new contract name is -> {response3.get('new_contract_name')}\n")
+        file.write(f"The AviatoSwapV2 address is -> {aviatoswapv2.address}\n")
+    
     print(Panel.fit(f"""[bold yellow]
     The information fetched from response (in add and remove liq) are: 
     Contract address {response.get('contract_address')}

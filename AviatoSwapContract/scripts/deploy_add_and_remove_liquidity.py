@@ -23,7 +23,7 @@ UNISWAP_V2_ROUTER01 = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"
 factory_addr = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
 
 def deploy(acc) -> json:
-    print(f"The account is: {acc.address}\n ")
+    print(f"The account is: {acc}\n ")
     time.sleep(1)
     block = web3.eth.get_block('latest')
     with Progress() as progress:
@@ -185,7 +185,9 @@ def main():
     network_selected = Prompt.ask("Which network we gonna use?",
         default="development", choices=["mainnet", "mainnet-fork", "Sepolia"])
     account = accounts[0] if network_selected == 'mainnet-fork' \
-        else config.get('wallets').get('from_key')
+        else accounts.add(config.get('wallets').get('from_key'))
+    # account = accounts.add(config['wallets']['from_key'])
     print(f"The network is {network.show_active()}")
+    print(account)
     data = deploy(acc=account)
     return data

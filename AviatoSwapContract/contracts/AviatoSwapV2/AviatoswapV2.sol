@@ -315,7 +315,11 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     }
 
 
-
+    /* */// @notice Explain to an end user what this does
+    /// @dev if liquidity balance of provider come into |variance - avg| area the LIQUIDITY_PROVIDER role will revoke.
+    /// @param _pair is the tokens (A/B) pair address
+    /// @param liq_balance is the new liquidity balance after remove liquidity operation.
+    /// @return revoke for determine the role will revoke or not (based on the following calculation)
     function _check_liq_balance_for_revoke_role(address _pair, uint256 liq_balance) private view returns(bool revoke) {
         pair_state memory pair = variance_map[_pair];
         if(liq_balance <= pair.average + pair.variance) {
@@ -325,6 +329,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
         }
     }
 
+    // Modifier which work based on account given in input
     modifier onlyRoleByAddress(bytes32 role, address account) {
         _checkRole(role, account);
         _;

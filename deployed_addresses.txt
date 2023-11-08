@@ -1,0 +1,9 @@
+
+    The Proxy Admin deploy address is [bold green]None[/]
+
+    And the proxy contract address is None which its owner is
+
+        [bold purple]None[/]
+
+ 
+    

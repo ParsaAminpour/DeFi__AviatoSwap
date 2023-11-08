@@ -1,0 +1,6 @@
+AviatoSwapV1 address -> 0x598D3161e6Ec7E84B23DeC84895E7815cdD8Fbf9
+AviatoSwapV1 owner address -> 0x6Ab920D4E9a269901B428B7Ec74904898b702fdE
+The ProxyAdmin is -> 0x4Ff054db6a546a9EB2dbEF3839003Ff2B4B1A422
+The Proxy Contract is -> 0x7eFf105493630338aBc2dE3aF275AeB7d15C3D11
+The new contract name is -> AviatoswapV2
+The AviatoSwapV2 address is -> 0x7eFf105493630338aBc2dE3aF275AeB7d15C3D11

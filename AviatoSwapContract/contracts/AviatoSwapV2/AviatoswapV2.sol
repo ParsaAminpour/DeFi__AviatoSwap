@@ -21,9 +21,9 @@ import { UniMath } from "../InternalMath.sol";
     @author is Parsa Aminpour
 */
 contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
-    using SafeMath for uint;
-    using Math for uint;
-    using UniMath for uint;
+    using SafeMath for uint256;
+    using Math for uint256;
+    using UniMath for uint256;
 
     address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address private constant UNISWAP_V2_ROUTER01 = 0xf164fC0Ec4E93095b804a4795bBe1e041497b92a;
@@ -33,16 +33,16 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     bytes32 private constant LIQUIDITY_PROVIDER_ROLE = 0xf4bff5b507dec16e54f7365ca3d82370290609650d2e573391f4d08fc9171fd5;
     bytes32 private constant ADMIN = 0x41444d494e000000000000000000000000000000000000000000000000000000;
 
-    uint private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3% | 0.3% with 18 decimal places
+    uint256 private constant FEE = (3 * 1e18 / 100) / 10; // will div to 1e18 to return 0.3% | 0.3% with 18 decimal places
 
     bool private initialized; // for Proxy contract logic
     bool public check_new_roles; // This is a flag for checking new roles off-chain
     uint8 private init_count; // declared at least cuz it will change frequently
 
     struct pair_state {
-        uint average;
-        uint variance;
-        uint count;
+        uint256 average;
+        uint256 variance;
+        uint16 count;
     }
     mapping(address => pair_state) public variance_map; // pair => current_variance
 
@@ -90,10 +90,10 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
      * @param _reserveA The reserve of the token being swapped.
      * @return actual_amount The actual amount of tokens to swap.
      */
-    function _getOptimalAmtAtoGetSwapAmtA(uint _amountA, uint _reserveA) internal pure returns(uint) {
+    function _getOptimalAmtAtoGetSwapAmtA(uint256 _amountA, uint256 _reserveA) internal pure returns(uint256) {
         require(_reserveA * _amountA != 0, "invalid amount inserted");
-        uint delta_val = (2 * _reserveA) * (2 * _reserveA) + 4 * (_amountA * _reserveA);
-        uint amountAToSwap = uint(UniMath.sqrt(delta_val) - (2 * _reserveA)).div(2);
+        uint256 delta_val = (2 * _reserveA) * (2 * _reserveA) + 4 * (_amountA * _reserveA);
+        uint256 amountAToSwap = uint256(UniMath.sqrt(delta_val) - (2 * _reserveA)).div(2);
         return amountAToSwap;
     }
 
@@ -106,14 +106,14 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     * @param optimal_val is the optimal amount for one-sided adding liquidity
     * @return _amountOut which is the result of calculation based on constatn reserve ration in swap architecture
     */
-    function _getAmountOut(uint _reserve1, uint _reserve2, uint optimal_val) 
+    function _getAmountOut(uint256 _reserve1, uint256 _reserve2, uint256 optimal_val) 
     internal 
     pure 
-    returns(uint _amountOut) {
+    returns(uint256 _amountOut) {
         require(_reserve1 != 0 && _reserve2 != 0, 'invalid inputs');
 
-        uint first_cal = _reserve2 * optimal_val;
-        uint second_cal = _reserve1 * optimal_val;
+        uint256 first_cal = _reserve2 * optimal_val;
+        uint256 second_cal = _reserve1 * optimal_val;
         unchecked {
             _amountOut = first_cal.div(second_cal);   
         }
@@ -132,15 +132,15 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
      *  @param _totalLpToken is the IUniswapV2Pair.balanceOf(msg.sender) inside pair contract
      * @return result which is the optimal amount for 
     */
-    function _calculateAmountOfLpTokenForBurn(uint _amountA, uint _amountB, uint _reserveA, uint _reserveB, uint _totalLpToken)
+    function _calculateAmountOfLpTokenForBurn(uint256 _amountA, uint256 _amountB, uint256 _reserveA, uint256 _reserveB, uint256 _totalLpToken)
     public 
     pure
-    returns(uint result) {
+    returns(uint256 result) {
         require(_amountA != 0 && _amountB != 0, "invalid inputs");
         
-        uint percentageA = (_amountA.mul(100)).div(_reserveA); // 50
-        uint percentageB = ((_amountB.mul(100)).div(_reserveB)); // 40
-        uint MinPercentage = (Math.min(percentageA, percentageB)).div(10); // 4
+        uint256 percentageA = (_amountA.mul(100)).div(_reserveA); // 50
+        uint256 percentageB = ((_amountB.mul(100)).div(_reserveB)); // 40
+        uint256 MinPercentage = (Math.min(percentageA, percentageB)).div(10); // 4
         // e.g. 40% ~ 0.4 ~ 4(the MinPercentage valur for this example)
 
         unchecked {
@@ -161,7 +161,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
      * @param _amountOutMin The minimum amount of tokens to receive from the swap.
      * @param _to The address to receive the swapped tokens.
      */
-    function swapping(address _first_pair, address _second_pair, uint _amountIn, uint _amountOutMin, address _to) 
+    function swapping(address _first_pair, address _second_pair, uint256 _amountIn, uint256 _amountOutMin, address _to) 
         public 
         nonReentrant()
     {
@@ -195,23 +195,23 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
      * @param _token2 is the address if Token B
      * @param _amount_token_for_add is the amount of X token assumed for adding to the liquidity
      */
-    function oneSideAddingLiquiduty(address _token1, address _token2, uint _amount_token_for_add) 
+    function oneSideAddingLiquiduty(address _token1, address _token2, uint256 _amount_token_for_add) 
     public
     nonReentrant()
     returns(bool added)  {
         address pair_ = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_token1, _token2);
-        (uint reserve1_, uint reserve2_, ) = IUniswapV2Pair(pair_).getReserves();
+        (uint256 reserve1_, uint256 reserve2_, ) = IUniswapV2Pair(pair_).getReserves();
 
         // defining which token will be add to pool
-        uint swapOptimalAmount = IUniswapV2Pair(pair_).token0() == _token1 ? // TokenA -> TokenB
+        uint256 swapOptimalAmount = IUniswapV2Pair(pair_).token0() == _token1 ? // TokenA -> TokenB
             _getOptimalAmtAtoGetSwapAmtA(_amount_token_for_add, reserve1_) : // TokenB -> TokenA
                 _getOptimalAmtAtoGetSwapAmtA(_amount_token_for_add, reserve2_);
         
-        uint amountOut = _getAmountOut(reserve1_, reserve2_, swapOptimalAmount);
+        uint256 amountOut = _getAmountOut(reserve1_, reserve2_, swapOptimalAmount);
         require(amountOut > 0, 'An error occured due _getAmountOut function');
 
         swapping(_token1, _token2, swapOptimalAmount, 1, msg.sender);
-        (uint a_, uint b_, uint liq_) = _bothSideAddingLiquidity(msg.sender, _token1, _token2, swapOptimalAmount, amountOut, msg.sender, block.timestamp + 10800);
+        (uint256 a_, uint256 b_, uint256 liq_) = _bothSideAddingLiquidity(msg.sender, _token1, _token2, swapOptimalAmount, amountOut, msg.sender, block.timestamp + 10800);
 
         require(a_ * b_ != 0 && liq_ != 0, "Some error occurred during addLiquidity");
         added = true;
@@ -225,17 +225,17 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     * NOTE: If the amount inserted by user was mroe than the variance and average area,
         The LIQUIDITY_PROVIDER_ROLE privilage will granting.
     */
-    function update_variance(address _pair, uint _new_liq) private {
+    function update_variance(address _pair, uint256 _new_liq) private {
         pair_state memory state = variance_map[_pair];
 
-        uint new_average = ((state.average).mul(state.count) + _new_liq).div(
+        uint256 new_average = ((state.average).mul(state.count) + _new_liq).div(
             state.count + 1);
 
-        uint diff = (new_average - _new_liq) ** 2;
+        uint256 diff = (new_average - _new_liq) ** 2;
         variance_map[_pair].average = new_average;
 
         // addind a propier number   for calculate new_variance based on ex-variance rather that calculate variance with a bunch of numbers (gas efficient)
-        variance_map[_pair].variance = UniMath.sqrt(uint((state.variance).mul(state.count) + diff).div(
+        variance_map[_pair].variance = UniMath.sqrt(uint256((state.variance).mul(state.count) + diff).div(
             state.count+1));
 
         variance_map[_pair].count ++;
@@ -258,13 +258,13 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
         address _from,
         address _tokenA,
         address _tokenB,
-        uint _amountA,
-        uint _amountB,
+        uint256 _amountA,
+        uint256 _amountB,
         address _to,
-        uint _deathtime
+        uint256 _deathtime
     ) internal  
     nonReentrant() 
-    returns(uint amountA, uint amountB, uint liquidity) {
+    returns(uint256 amountA, uint256 amountB, uint256 liquidity) {
 
         require(_tokenA != address(0) || _tokenB != address(0), "invalid address as input");
         require(_amountA * _amountB != 0, "amounts should not be zero");
@@ -283,7 +283,7 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
         );
 
         address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair(_tokenA, _tokenB);
-        uint lp_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
+        uint256 lp_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
 
         require(address(pair) != address(0), "Adding liquidity encounterd to some problem");
         require(amountA * amountB != 0, "Some error occured in addliquidity function");
@@ -310,13 +310,13 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
     }
 
 
-    function bothSideAddingLiquidity(address _tokenA, address _tokenB, uint _amountA, uint _amountB, address _to, uint _deathtime) public {
+    function bothSideAddingLiquidity(address _tokenA, address _tokenB, uint256 _amountA, uint256 _amountB, address _to, uint32 _deathtime) public {
         _bothSideAddingLiquidity(msg.sender, _tokenA, _tokenB, _amountA, _amountB, _to, _deathtime);
     }
 
 
 
-    function _check_liq_balance_for_revoke_role(address _pair, uint liq_balance) private view returns(bool revoke) {
+    function _check_liq_balance_for_revoke_role(address _pair, uint256 liq_balance) private view returns(bool revoke) {
         pair_state memory pair = variance_map[_pair];
         if(liq_balance <= pair.average + pair.variance) {
             revoke = true;
@@ -339,11 +339,11 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
      * @return amount_back1 The actual amount of token A which is remained after removing liquidity. 
      * @return amount_back2 The actual amount of token B which is remained after removing liquidity. 
      */
-    function _removingLiquidity(address _token1, address _token2, uint _amount1, uint _amount2)
+    function _removingLiquidity(address _token1, address _token2, uint256 _amount1, uint256 _amount2)
     external
     nonReentrant()
     onlyRoleByAddress(LIQUIDITY_PROVIDER_ROLE, msg.sender)
-    returns(uint amount_back1, uint amount_back2) {
+    returns(uint256 amount_back1, uint256 amount_back2) {
 
         require(_token1 != address(0) && _token2 != address(0), "invalid address as input");
         require(_amount1 * _amount2 != 0, "amounts should not be zero");
@@ -356,17 +356,17 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
         require(IUniswapV2Pair(pair).token1() == _token1 && IUniswapV2Pair(pair).token1() == _token2, 
             "The pair tokens' address didn't match with addresses in input");
 
-        (uint _reserve1, uint _reserve2, ) = IUniswapV2Pair(pair).getReserves(); // timestamp exist in 3nd arg
-        uint liquidity_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
+        (uint256 _reserve1, uint256 _reserve2, ) = IUniswapV2Pair(pair).getReserves(); // timestamp exist in 3nd arg
+        uint256 liquidity_balance = IUniswapV2Pair(pair).balanceOf(msg.sender);
         require(liquidity_balance != 0, "Liquidity has not been added yet");
 
         // emit LogAllowance(IUniswapV2Pair(pair).allowance(_from, UNISWAP_V2_ROUTER01));
 
-        uint LpAmountForBurn = _calculateAmountOfLpTokenForBurn(_amount1, _amount2, _reserve1, _reserve2, liquidity_balance);
+        uint256 LpAmountForBurn = _calculateAmountOfLpTokenForBurn(_amount1, _amount2, _reserve1, _reserve2, liquidity_balance);
         require(liquidity_balance >= LpAmountForBurn, "Something went wrong in removeLiquidity");
         
 
-        uint new_liq_balance;
+        uint256 new_liq_balance;
         // senario No.1 : not whole Lp tokens:
         if(_reserve1.add(_reserve2) != _amount1.add(_amount2)) {
             // emit logUint("Lp token amount clculated by internal function", LpAmountForBurn);
@@ -397,13 +397,4 @@ contract AviatoswapV2 is ReentrancyGuard, Ownable, AccessControl{
 
         require(amount_back1 * amount_back2 != 0, "Some error occured in amount back"); // non of those amount back should be 0 (require is not necessary in here)
     }
-
-    /**
-    *   @dev stack too deep error will occurr if we want to set _from as an input for removeLiquidity internal function
-    */
-    // function removeLiquidity(address _from, address _token1, address _token2, uint _amount1, uint _amount2) 
-    // public {
-    //     require(_from != address(0), "invalid caller address");
-    //     _removingLiquidity(_token1, _token2, _amount1, _amount2);
-    // }
 }

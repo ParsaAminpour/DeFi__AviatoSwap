@@ -1,4 +1,5 @@
 from brownie import (
+    AviatoswapV2,
     Aviatoswap,
     TokenA,
     TokenB,
@@ -13,6 +14,11 @@ from datetime import datetime as dt
 import pytest, math
 
 AMOUNT_IN = 1e20
+AMOUNT_IN_FOR_REMOVE = 1e19
+
+UNISWAP_V2_ROUTER01 = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"
+FACTORY_ADDRESS = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+# UNISWAP_V2_ROUTER01 = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
 
 @pytest.fixture(scope='module')
 def timestamp():
@@ -39,7 +45,9 @@ def provide_account():
 @pytest.fixture(scope='module')
 def provide_contract(provide_account):
     acc = provide_account
-    aviato = Aviatoswap.deploy({'from':acc})
+    # aviato = Aviatoswap.deploy({'from':acc})
+    aviato = AviatoswapV2.deploy({'from':provide_account})
+
     return aviato
 
 @pytest.fixture(scope='module')
@@ -54,13 +62,18 @@ def token2(provide_account):
 def test_add_liquidity(provide_account, provide_contract, token1, token2, timestamp):
     token1.approve(provide_contract.address, AMOUNT_IN, {'from':provide_account})
     token2.approve(provide_contract.address, AMOUNT_IN, {'from':provide_account})
+    block = web3.eth.get_block('latest')
+    
 
     assert token1.allowance(provide_account, provide_contract.address) == 1e20
     assert token2.allowance(provide_account, provide_contract.address) == 1e20
 
 
-    tx = provide_contract._bothSideAddingLiquidity(
-        token1.address, token2.address, AMOUNT_IN, AMOUNT_IN, provide_account, timestamp + 10800
+    # with an account which is not associated to AviatoswapV2 deployer
+    PROVIDER = accounts[1]
+    tx = provide_contract.bothSideAddingLiquidity(
+        token1.address, token2.address, AMOUNT_IN, AMOUNT_IN, provide_account, block.timestamp + 10800,
+        {'from':accounts[0]}
     )
     tx.wait(1)
 
@@ -89,23 +102,15 @@ def test_add_liquidity(provide_account, provide_contract, token1, token2, timest
     assert reserves[0] == 1e20
     assert reserves[1] == 1e20
 
-    liq_balance = interface.IUniswapV2Pair(pair_addr).balanceOf(provide_account).to('ether') // 1
-    assert liq_balance == 99
+    liq_balance = interface.IUniswapV2Pair(pair_addr).balanceOf(provide_account)
+    assert (liq_balance.to('ether')//1) == 99
 
+    aviato1 = Aviatoswap.deploy({'from':provide_account})
+    assert aviato1.address != provide_contract.address
 
-
-def x_remove_liquidity():
-    token1.approve(provide_contract.address, AMOUNT_IN, {'from':provide_account})
-    token2.approve(provide_contract.address, AMOUNT_IN, {'from':provide_account})
-
-    tx = provide_contract._bothSideAddingLiquidity(
-        token1.address, token2.address, AMOUNT_IN, AMOUNT_IN, provide_account, timestamp + 10800
-    )
-    tx.wait(1)
-
-    tx2 = provide_contract.removingLiquidity(
-        token1.address, token2.address, 1e19, 1e19
-    )
-    
-
+    # check role granted
+    LIQUIDITY_PROVIDER_ROLE = "0xf4bff5b507dec16e54f7365ca3d82370290609650d2e573391f4d08fc9171fd5"
+    ADMIN = "0x41444d494e000000000000000000000000000000000000000000000000000000"
+    assert provide_contract.hasRole(LIQUIDITY_PROVIDER_ROLE, provide_account) == True # returns bool
+    assert provide_contract.hasRole(ADMIN, provide_account) == True
 

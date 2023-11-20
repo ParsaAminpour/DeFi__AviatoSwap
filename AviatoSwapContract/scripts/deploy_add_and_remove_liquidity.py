@@ -46,7 +46,7 @@ def deploy(acc) -> json:
             progress.update(tokens_task, completed=3)
 
 
-            swap = Aviatoswap.deploy({'from':acc})  
+            swap = Aviatoswap.deploy({'from':acc})
             progress.update(swap_task, completed=1)
             
             # console.print(f"The balances are:\nToken1: {token1.balanceOf(acc)}\nToken2: {token2.balanceOf(acc)}\n\n")
@@ -130,6 +130,9 @@ def deploy(acc) -> json:
     #     while not progress.finished:
     #         pass
 
+
+
+
     ########### REMOVE LIQUIDITY ###########
     with Progress() as progress:
         preparing = progress.add_task("Preparing for remove liquidty...", total=3)
@@ -157,6 +160,7 @@ def deploy(acc) -> json:
                 token1.address, token2.address, optimal_lp_amount_to_burn, 1, 1, acc, block.timestamp + 10800,
                 {'from':acc})
             remove_liq_tx.wait(1)
+            
             progress.update(remove_liquidity, completed=3)
 
 
